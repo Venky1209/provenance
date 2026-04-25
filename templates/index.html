@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Provenance — Content Trust Scoring</title>
+  <meta name="description" content="Live demo: Scrape any blog, YouTube video, or PubMed article and get an explainable trust score.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #0a0e17;
+      --surface: #111827;
+      --surface-2: #1a2234;
+      --border: #1e293b;
+      --border-focus: #3b82f6;
+      --text: #e2e8f0;
+      --text-muted: #94a3b8;
+      --accent: #3b82f6;
+      --accent-glow: rgba(59, 130, 246, 0.15);
+      --success: #10b981;
+      --warning: #f59e0b;
+      --danger: #ef4444;
+      --radius: 12px;
+      --font: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      --mono: 'JetBrains Mono', monospace;
+    }
+
+    body {
+      font-family: var(--font);
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      line-height: 1.6;
+    }
+
+    .container {
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 2rem 1.5rem;
+    }
+
+    /* ── Header ────────────────────────────────── */
+    header {
+      text-align: center;
+      margin-bottom: 2.5rem;
+    }
+
+    header h1 {
+      font-size: 2rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, #3b82f6 0%, #10b981 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 0.5rem;
+      letter-spacing: -0.02em;
+    }
+
+    header p {
+      color: var(--text-muted);
+      font-size: 0.95rem;
+    }
+
+    .nav-links {
+      margin-top: 1rem;
+      display: flex;
+      gap: 1rem;
+      justify-content: center;
+    }
+
+    .nav-links a {
+      color: var(--accent);
+      text-decoration: none;
+      font-size: 0.85rem;
+      font-weight: 500;
+      padding: 0.4rem 1rem;
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      transition: all 0.2s;
+    }
+
+    .nav-links a:hover {
+      border-color: var(--accent);
+      background: var(--accent-glow);
+    }
+
+    /* ── Form ──────────────────────────────────── */
+    .scrape-form {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.5rem;
+      margin-bottom: 2rem;
+    }
+
+    .form-row {
+      display: flex;
+      gap: 0.75rem;
+      margin-bottom: 1rem;
+    }
+
+    .form-row input[type="url"] {
+      flex: 1;
+      padding: 0.7rem 1rem;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: var(--surface-2);
+      color: var(--text);
+      font-family: var(--mono);
+      font-size: 0.9rem;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    .form-row input[type="url"]:focus {
+      border-color: var(--border-focus);
+      box-shadow: 0 0 0 3px var(--accent-glow);
+    }
+
+    .form-row input[type="url"]::placeholder {
+      color: var(--text-muted);
+    }
+
+    .form-row select {
+      padding: 0.7rem 1rem;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: var(--surface-2);
+      color: var(--text);
+      font-family: var(--font);
+      font-size: 0.9rem;
+      cursor: pointer;
+      outline: none;
+    }
+
+    .btn-scrape {
+      width: 100%;
+      padding: 0.8rem;
+      border: none;
+      border-radius: 8px;
+      background: linear-gradient(135deg, #3b82f6, #2563eb);
+      color: #fff;
+      font-family: var(--font);
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      letter-spacing: 0.01em;
+    }
+
+    .btn-scrape:hover:not(:disabled) {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 16px rgba(59, 130, 246, 0.35);
+    }
+
+    .btn-scrape:disabled {
+      opacity: 0.6;
+      cursor: wait;
+    }
+
+    /* ── Loading ───────────────────────────────── */
+    .spinner {
+      display: none;
+      text-align: center;
+      padding: 2rem;
+      color: var(--text-muted);
+    }
+
+    .spinner.active { display: block; }
+
+    .spinner::before {
+      content: '';
+      display: inline-block;
+      width: 24px;
+      height: 24px;
+      border: 3px solid var(--border);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      margin-bottom: 0.5rem;
+      vertical-align: middle;
+      margin-right: 0.5rem;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── Error ─────────────────────────────────── */
+    .error-panel {
+      display: none;
+      background: rgba(239, 68, 68, 0.1);
+      border: 1px solid rgba(239, 68, 68, 0.3);
+      border-radius: var(--radius);
+      padding: 1rem 1.25rem;
+      margin-bottom: 1.5rem;
+      color: #fca5a5;
+      font-size: 0.9rem;
+    }
+
+    .error-panel.active { display: block; }
+
+    /* ── Result Panel ─────────────────────────── */
+    .result {
+      display: none;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+    }
+
+    .result.active { display: block; }
+
+    .result-header {
+      padding: 1.25rem 1.5rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .result-header h2 {
+      font-size: 1.15rem;
+      font-weight: 600;
+      margin-bottom: 0.35rem;
+      line-height: 1.4;
+    }
+
+    .result-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+
+    .result-meta span::before {
+      content: attr(data-label);
+      color: var(--text-muted);
+      opacity: 0.6;
+      margin-right: 0.3rem;
+    }
+
+    /* ── Trust Score Badge ─────────────────────── */
+    .trust-section {
+      padding: 1.25rem 1.5rem;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+    }
+
+    .trust-badge {
+      width: 72px;
+      height: 72px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.4rem;
+      font-weight: 700;
+      font-family: var(--mono);
+      flex-shrink: 0;
+      border: 3px solid;
+    }
+
+    .trust-badge.high { border-color: var(--success); color: var(--success); background: rgba(16, 185, 129, 0.1); }
+    .trust-badge.mid { border-color: var(--warning); color: var(--warning); background: rgba(245, 158, 11, 0.1); }
+    .trust-badge.low { border-color: var(--danger); color: var(--danger); background: rgba(239, 68, 68, 0.1); }
+
+    .trust-details { flex: 1; }
+    .trust-details p {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      margin-bottom: 0.5rem;
+    }
+
+    .trust-factors {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.35rem;
+      font-size: 0.78rem;
+    }
+
+    .trust-factors span {
+      color: var(--text-muted);
+    }
+
+    .trust-factors strong {
+      color: var(--text);
+      font-family: var(--mono);
+      font-weight: 500;
+    }
+
+    /* ── Tags ──────────────────────────────────── */
+    .tags-section {
+      padding: 1rem 1.5rem;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+
+    .tag {
+      font-size: 0.75rem;
+      padding: 0.25rem 0.7rem;
+      border-radius: 999px;
+      background: var(--accent-glow);
+      color: var(--accent);
+      border: 1px solid rgba(59, 130, 246, 0.2);
+      font-weight: 500;
+    }
+
+    /* ── Risk Flags ────────────────────────────── */
+    .flags-section {
+      padding: 1rem 1.5rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .flags-section h3 {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      margin-bottom: 0.5rem;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .flag {
+      display: inline-block;
+      font-size: 0.75rem;
+      padding: 0.2rem 0.6rem;
+      border-radius: 999px;
+      background: rgba(239, 68, 68, 0.1);
+      color: #fca5a5;
+      border: 1px solid rgba(239, 68, 68, 0.2);
+      margin: 0.2rem 0.3rem 0.2rem 0;
+      font-family: var(--mono);
+    }
+
+    .no-flags {
+      font-size: 0.8rem;
+      color: var(--success);
+    }
+
+    /* ── Chunks Preview ────────────────────────── */
+    .chunks-section {
+      padding: 1.25rem 1.5rem;
+    }
+
+    .chunks-section h3 {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      margin-bottom: 0.75rem;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .chunk {
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 0.8rem 1rem;
+      margin-bottom: 0.5rem;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      line-height: 1.5;
+      max-height: 120px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .chunk::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 30px;
+      background: linear-gradient(transparent, var(--surface-2));
+    }
+
+    /* ── Footer ────────────────────────────────── */
+    footer {
+      text-align: center;
+      padding: 2rem 0;
+      color: var(--text-muted);
+      font-size: 0.8rem;
+    }
+
+    footer a { color: var(--accent); text-decoration: none; }
+    footer a:hover { text-decoration: underline; }
+
+    /* ── Responsive ────────────────────────────── */
+    @media (max-width: 600px) {
+      .form-row { flex-direction: column; }
+      .trust-section { flex-direction: column; text-align: center; }
+      .trust-factors { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>Provenance</h1>
+      <p>Paste any blog, YouTube, or PubMed URL — get an explainable trust score.</p>
+      <div class="nav-links">
+        <a href="/docs">API Docs</a>
+        <a href="/summary">Dataset Summary</a>
+        <a href="/sources">Sample Sources</a>
+      </div>
+    </header>
+
+    <form class="scrape-form" id="scrapeForm">
+      <div class="form-row">
+        <input type="url" id="urlInput" placeholder="https://example.com/article" required>
+        <select id="sourceType">
+          <option value="blog">Blog</option>
+          <option value="youtube">YouTube</option>
+          <option value="pubmed">PubMed</option>
+        </select>
+      </div>
+      <button type="submit" class="btn-scrape" id="submitBtn">Analyze Trust</button>
+    </form>
+
+    <div class="spinner" id="spinner">Scraping and scoring…</div>
+    <div class="error-panel" id="errorPanel"></div>
+
+    <div class="result" id="resultPanel">
+      <div class="result-header">
+        <h2 id="resTitle"></h2>
+        <div class="result-meta">
+          <span data-label="Author: " id="resAuthor"></span>
+          <span data-label="Date: " id="resDate"></span>
+          <span data-label="Language: " id="resLang"></span>
+          <span data-label="Source: " id="resType"></span>
+        </div>
+      </div>
+
+      <div class="trust-section">
+        <div class="trust-badge" id="trustBadge"></div>
+        <div class="trust-details">
+          <p id="resReason"></p>
+          <div class="trust-factors" id="trustFactors"></div>
+        </div>
+      </div>
+
+      <div class="tags-section" id="tagsSection"></div>
+
+      <div class="flags-section">
+        <h3>Risk Flags</h3>
+        <div id="flagsContainer"></div>
+      </div>
+
+      <div class="chunks-section">
+        <h3>Content Chunks (preview)</h3>
+        <div id="chunksContainer"></div>
+      </div>
+    </div>
+
+    <footer>
+      Built for the Data Scraping &amp; Trust Scoring assignment &middot;
+      <a href="/docs">API Documentation</a>
+    </footer>
+  </div>
+
+  <script>
+    const form = document.getElementById('scrapeForm');
+    const urlInput = document.getElementById('urlInput');
+    const sourceType = document.getElementById('sourceType');
+    const submitBtn = document.getElementById('submitBtn');
+    const spinner = document.getElementById('spinner');
+    const errorPanel = document.getElementById('errorPanel');
+    const resultPanel = document.getElementById('resultPanel');
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const url = urlInput.value.trim();
+      if (!url) return;
+
+      // Reset
+      resultPanel.classList.remove('active');
+      errorPanel.classList.remove('active');
+      spinner.classList.add('active');
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Analyzing…';
+
+      try {
+        const resp = await fetch('/scrape', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ url, source_type: sourceType.value }),
+        });
+
+        const data = await resp.json();
+
+        if (!resp.ok) {
+          throw new Error(data.detail || data.error || `HTTP ${resp.status}`);
+        }
+
+        renderResult(data);
+      } catch (err) {
+        errorPanel.textContent = `Error: ${err.message}`;
+        errorPanel.classList.add('active');
+      } finally {
+        spinner.classList.remove('active');
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Analyze Trust';
+      }
+    });
+
+    function renderResult(d) {
+      document.getElementById('resTitle').textContent = d.title || 'Untitled';
+      document.getElementById('resAuthor').textContent = d.author || 'Unknown';
+      document.getElementById('resDate').textContent = d.published_date || 'N/A';
+      document.getElementById('resLang').textContent = (d.language || 'en').toUpperCase();
+      document.getElementById('resType').textContent = d.source_type;
+
+      // Trust badge
+      const badge = document.getElementById('trustBadge');
+      const score = d.trust_score;
+      badge.textContent = score.toFixed(2);
+      badge.className = 'trust-badge ' + (score >= 0.65 ? 'high' : score >= 0.4 ? 'mid' : 'low');
+
+      // Reason
+      document.getElementById('resReason').textContent = d.scoring_reason || '';
+
+      // Breakdown
+      const factors = document.getElementById('trustFactors');
+      const bd = d.trust_breakdown || {};
+      factors.innerHTML = Object.entries(bd).map(([k, v]) =>
+        `<span>${k.replace(/_/g, ' ')}: <strong>${v.toFixed(2)}</strong></span>`
+      ).join('');
+
+      // Tags
+      const tagsSection = document.getElementById('tagsSection');
+      tagsSection.innerHTML = (d.topic_tags || []).map(t =>
+        `<span class="tag">${t.replace(/_/g, ' ')}</span>`
+      ).join('');
+
+      // Flags
+      const flagsContainer = document.getElementById('flagsContainer');
+      const flags = d.risk_flags || [];
+      flagsContainer.innerHTML = flags.length
+        ? flags.map(f => `<span class="flag">${f}</span>`).join('')
+        : '<span class="no-flags">✓ No risk flags detected</span>';
+
+      // Chunks (show first 3)
+      const chunksContainer = document.getElementById('chunksContainer');
+      const chunks = (d.content_chunks || []).slice(0, 3);
+      chunksContainer.innerHTML = chunks.map(c =>
+        `<div class="chunk">${c.substring(0, 300)}${c.length > 300 ? '…' : ''}</div>`
+      ).join('') || '<p style="color:var(--text-muted);font-size:0.85rem">No content chunks available.</p>';
+
+      resultPanel.classList.add('active');
+    }
+  </script>
+</body>
+</html>
