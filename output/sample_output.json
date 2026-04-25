@@ -35,7 +35,7 @@
       "outdated_medical_content"
     ],
     "scoring_reason": "strong author credibility. high-authority domain. content is outdated.",
-    "scraped_at": "2026-04-25T06:09:19.515345"
+    "scraped_at": "2026-04-25T06:20:33.233932"
   },
   {
     "source_id": "54157366721a",
@@ -76,7 +76,7 @@
       "promotional_language"
     ],
     "scoring_reason": "strong author credibility. abuse signals detected: promotional_language.",
-    "scraped_at": "2026-04-25T06:09:20.310945"
+    "scraped_at": "2026-04-25T06:20:34.907844"
   },
   {
     "source_id": "0ec818211435",
@@ -117,7 +117,7 @@
       "missing_date"
     ],
     "scoring_reason": "weak or missing author. low-authority domain.",
-    "scraped_at": "2026-04-25T06:09:20.863876"
+    "scraped_at": "2026-04-25T06:20:36.562950"
   },
   {
     "source_id": "64855c0959f4",
@@ -157,70 +157,86 @@
       "outdated_medical_content"
     ],
     "scoring_reason": "no visible citations. content is outdated.",
-    "scraped_at": "2026-04-25T06:09:24.046975"
+    "scraped_at": "2026-04-25T06:20:39.377449"
   },
   {
-    "source_id": "67c732fbd148",
-    "source_url": "https://www.youtube.com/watch?v=YB2OQDkGSjg",
+    "source_id": "ea783a10c97c",
+    "source_url": "https://www.youtube.com/watch?v=B9RruLkAUm8",
     "source_type": "youtube",
-    "title": "",
-    "description": "",
-    "author": "",
-    "published_date": "",
-    "language": "en",
-    "region": "",
-    "topic_tags": [],
-    "trust_score": 0.24,
-    "content_chunks": [],
-    "raw_text": "",
-    "journal": "",
-    "citations_count": 0,
-    "trust_breakdown": {
-      "author_credibility": 0.15,
-      "citation_count": 0.05,
-      "domain_authority": 0.45,
-      "recency": 0.35,
-      "medical_disclaimer_presence": 0.2
-    },
-    "risk_flags": [
-      "missing_author",
-      "no_citations",
-      "missing_date",
-      "transcript_unavailable"
-    ],
-    "scoring_reason": "weak or missing author. no visible citations.",
-    "scraped_at": "2026-04-25T06:09:25.240775"
-  },
-  {
-    "source_id": "666e181d4390",
-    "source_url": "https://pubmed.ncbi.nlm.nih.gov/35931040/",
-    "source_type": "pubmed",
-    "title": "Inferring monosynaptic connections from paired dendritic spine Ca2+imaging and large-scale recording of extracellular spiking.",
-    "description": "Objective: Techniques to identify monosynaptic connections between neurons have been vital for neuroscience research, facilitating important advancements concerning network topology, synaptic plasticity, and synaptic integration, among others.Approach: Here, we introduce a novel approach to identify",
-    "author": "Xiaohan Xue, Alessio Paolo Buccino, Sreedhar Saseendran Kumar, Andreas Hierlemann, Julian Bartram",
-    "published_date": "2022-Aug-23",
+    "title": "Your Gut Microbiome: The Most Important Organ You’ve Never Heard Of | Erika Ebbel Angle | TEDxFargo",
+    "description": "NOTE FROM TED: Please do not look to this talk for medical advice. While some viewers might find advice provided in this talk to be helpful as a complementar...",
+    "author": "TEDx Talks",
+    "published_date": "2019-12-12",
     "language": "en",
     "region": "",
     "topic_tags": [
-      "research",
-      "technology"
+      "nutrition",
+      "mental_health",
+      "gut_health",
+      "inflammation",
+      "research"
     ],
-    "trust_score": 0.8,
+    "trust_score": 0.27,
     "content_chunks": [
-      "Objective: Techniques to identify monosynaptic connections between neurons have been vital for neuroscience research, facilitating important advancements concerning network topology, synaptic plasticity, and synaptic integration, among others.Approach: Here, we introduce a novel approach to identify and monitor monosynaptic connections using high-resolution dendritic spine Ca2+imaging combined with simultaneous large-scale recording of extracellular electrical activity by means of high-density microelectrode arrays.Main results: We introduce an easily adoptable analysis pipeline that associates the imaged spine with its presynaptic unit and test it onin vitrorecordings. The method is further validated and optimized by simulating synaptically-evoked spine Ca2+transients based on measured spike trains in order to obtain simulated ground-truth connections.Significance: The proposed approach offers unique advantages as (a) it can be used to identify monosynaptic connections with an accurate localization of the synapse within the dendritic tree, (b) it provides precise information of presynaptic spiking, and (c) postsynaptic spine Ca2+signals and, finally, (d) the non-invasive nature of the proposed method allows for long-term measurements. The analysis toolkit together with the rich data sets that were acquired are made publicly available for further exploration by the research community."
+      "[Music] so I am here today to talk to you about the importance of listening to your gut brief hello I'm a 38 year old entrepreneur biochemist went to MIT bu School of Medicine and I have decided to dedicate my life to studying the gut and the gut microbiome six years ago I even started a company to address this issue and I'm a routine contributor some of the publications that you see here as a specialist in gut health I've been really fortunate over the last few years to have worked with professional athletes and professional athletic teams to try to improve their gut health because it's so intimately related to things like increasing performance decreasing sickness and improving recovery time so why am I here today well I'm here to talk to you about what I think is the most important organ and that is the gut microbiome so for those of you who don't know what the gut microbiome is it's everything from your mouth to your colon from entry to exit all the bits in between so your stomach your small intestine your large intestine and all of the little critters that live in there so bacteria fungi viruses and cells there are trillions of these little critters that are living in there and we'll talk about this a little bit more later but diversity is so important in the gut so why is it important to have a healthy gut well it's really important for long-term health so if you have a healthy gut you're gonna feel more energetic you're gonna get sick less often you're gonna have better mental clarity and ultimately have better emotional well-being versus if you don't have a healthy gut a lot of research is showing that this is related to things like autoimmune conditions diabetes neurodegenerative disorders like Alzheimer's and even emotional issues like anxiety and depression so our theme for today is you are what you eat so you're probably sitting there thinking yeah you know as a kid my parents always used to tell me you are what you eat as they tried to foist broccoli off on me or if you were really really lucky Brussels sprouts and other things like that but the reality is they're actually right eating poorly can do really two things so the first one it can prevent you from getting the nutrients that you need to stay healthy and second it can actually damage and change the entire composition of your gut which will render it unable to digest things properly and create the nutrients that you need to function so today we're gonna look at three molecules that you get from dietary intake you have to eat these things so the first is something called tryptophan you've probably heard of this Thanksgiving comes everybody talks about the tryptophan induced coma that happens after you have your food it's found in Turkey but it's also found in things like",
+      "you get from dietary intake you have to eat these things so the first is something called tryptophan you've probably heard of this Thanksgiving comes everybody talks about the tryptophan induced coma that happens after you have your food it's found in Turkey but it's also found in things like eggs and chia seeds so your body takes tryptophan and converts it into a lot of other really important molecules two of which we're gonna talk about today so one called serotonin serotonin is something that makes you happy super important and something called melatonin which actually helps you to sleep so imagine if you don't have any tryptophan or you're not consuming enough tryptophan well no matter how many roses or diamonds or chocolates your significant other brings you it's just not gonna make you happy and that's kind of sad also you won't be able to sleep so you won't be able to count sheep at night another example is a compound called tyrosine so tyrosine another amino acid is found in foods like almonds but it's also found in lentils and seeds and edamame tyrosine is converted to a variety of really important things as well so we'll talk about dopamine dopamine is a compound that you may have heard of and it's essentially it motivates you to do stuff so it's this initiative oriented behavior that it helps to propel an epinephrine which is also known as adrenaline the fight-or-flight molecule which is really helpful when you're up on this stage so you know imagine if you don't have these things what would happen well here's what would happen one you'd be drooling on your couch or worse yet if you were being chased by a mountain lion which I'm sure you know who knows may happen at some point in everybody's life the emoji being you know huh you don't want this to happen right you need a body to respond to these types of situations third we're gonna talk about something called indole-3 lactic acids so it's really important found in fermented foods things like pickles sauerkraut kimchi kefir ila is super important because your body takes it in and there's certain bacteria in the guts that actually convert the ILA into something called IPA indle Pro prion ik acid that into appropriate ik acid is actually one of the strongest antioxidants in the body and again you guys might have heard of what you know this word antioxidant but I'll explain what it does so in your body you have a variety of different chemical processes that happen and they many of them create things called free radicals these are bad they're reactive species that go and damage your cells they damage DNA and then ultimately can lead to things like cancer so these antioxidants come in and actually break down your free radicals keeping you healthy longer IPA very important so clearly eating certain types of foods is really necessary to keep",
+      "species that go and damage your cells they damage DNA and then ultimately can lead to things like cancer so these antioxidants come in and actually break down your free radicals keeping you healthy longer IPA very important so clearly eating certain types of foods is really necessary to keep you healthy but it's not sufficient a healthy microbiome is needed to be able to execute these conversion processes that we're talking about to take things in to digest them and to spit out other molecules that are really important to your health so let's talk a little bit about what makes a healthy microbiome so I've tried to simplify this a bit but essentially each emoji is a type of bacteria you have different ones right so you've got some that digest veggies some that digest meats and breads and oils and your gut is populated by many many different types of things so in a healthy gut you have very diverse species in there now let's say you decide that you are just going to eat foods that are really high in fat things like hotdogs and ice cream and and pizza although Pizza sounds really good right now if you train your systems to do this your guts going to start using more and more of the type of bacteria that are used to seeing the kinds of foods that you eat and eventually you're going to skew the ratios those bacteria are going to out-compete the other types that are there because they're just not being used and then you'll end up with a situation where you can have a very unhealthy not diverse set of bacteria in your gut now you might ask can you reverse that yes but it often takes a lot of time and energy to do sometimes you actually can't sometimes you just you know once those bacteria are gone it's really tough to bring them back so what's really interesting is the body tries to actually generate the right building blocks even if you've damaged your gut so again on the bottom right hand side you can see there's a silhouette you can see the little emojis down at the bottom they've taken in food but you don't have a diverse set of bacteria in there they've taken in your food and they're trying to create these compounds to keep you healthy but there's just not enough of them they're not working the right way whereas on the other side you've got a silhouette where the person has lots of diversity lots of different bacteria emojis and they're being able to take in the food digest it and spit out many things that are really important to keep you healthy now here's the sad part many of the things that we do in our life are in fact completely lethal to the microbiome I love chips sadly you don't find a lot of healthy stuff in most chips you're not",
+      "many things that are really important to keep you healthy now here's the sad part many of the things that we do in our life are in fact completely lethal to the microbiome I love chips sadly you don't find a lot of healthy stuff in most chips you're not gonna find tiresome tryptophan or ILA here antibiotics medicines helpful but they kill bacteria and they don't just kill bad bacteria they kill all bacteria and so oftentimes after you've gone through a course of antibiotics you kill off your microbiome sometimes it never rebuilds properly again stress you know you hear this stress kills kills thing stress is bad we could have a whole 30 minute talk on the impact of stress on the microbiome stress is in fact extremely bad for the microbiome your central nervous system your brain is intimately connected to your gun the two talk back and forth to each other think about it when you're stressed have a headache you feel terrible you often feel that stress in your stomach butterflies in your stomach anxiety sometimes you have to go to the bathroom more it's the to talk to each other all the time they're intimately connected and so the more stressed you are the more likely it is that you will damage your microbiome and then lastly you know we live in a very aseptic society and this is bad decreases the diversity of bacteria in the gut one of my favorite examples is you know back many years ago kids would play in the dirt and they'd be exposed to all kinds of different things now kids come inside they watch TV they play on their phones and a lot of diseases are actually being connected to the lack of diversity in the gut things like autism ADHD so super important to get outside so what can we do about this well the good news is not all is lost it is possible to improve your gut and this is one of the things that I get to do every day and I'm so fortunate in my job my company actually is trying to measure the functional state of the gut define what that is and then to create interventions to improve it we call this improving your internal fitness so what are some simple things that you can do to help improve your gut well one we've talked about changing your diet two we've talked about stress management techniques incorporating mindfulness meditation breathing exercises to minimize your stress or exercise is great fifteen twenty minutes of walking a day can help to you know keep you regular it can you know we talked about that in front of the group that's what we do it can help to you know mitigate your stress and it can actually help to promote the growth of certain types of bacteria and then lastly targeted supplementation I'm not saying to take lots of different supplements",
+      "we talked about that in front of the group that's what we do it can help to you know mitigate your stress and it can actually help to promote the growth of certain types of bacteria and then lastly targeted supplementation I'm not saying to take lots of different supplements I'm saying if there's certain things that your body needs you might actually take a supplement yeah sometimes there's a lot of fish that you have to eat in order to get the equivalency of one pill but make sure it's what you need so the next time that you're lying on the couch feeling lethargic and not sure why or you're sick the fifth time in a year listen to your gut thank you [Applause] [Music] [Applause]"
     ],
-    "raw_text": "Objective: Techniques to identify monosynaptic connections between neurons have been vital for neuroscience research, facilitating important advancements concerning network topology, synaptic plasticity, and synaptic integration, among others.Approach: Here, we introduce a novel approach to identify and monitor monosynaptic connections using high-resolution dendritic spine Ca2+imaging combined with simultaneous large-scale recording of extracellular electrical activity by means of high-density microelectrode arrays.Main results: We introduce an easily adoptable analysis pipeline that associates the imaged spine with its presynaptic unit and test it onin vitrorecordings. The method is further validated and optimized by simulating synaptically-evoked spine Ca2+transients based on measured spike trains in order to obtain simulated ground-truth connections.Significance: The proposed approach offers unique advantages as (a) it can be used to identify monosynaptic connections with an accurate localization of the synapse within the dendritic tree, (b) it provides precise information of presynaptic spiking, and (c) postsynaptic spine Ca2+signals and, finally, (d) the non-invasive nature of the proposed method allows for long-term measurements. The analysis toolkit together with the rich data sets that were acquired are made publicly available for further exploration by the research community.",
-    "journal": "Journal of neural engineering",
-    "citations_count": 37,
+    "raw_text": "[Music] so I am here today to talk to you about the importance of listening to your gut brief hello I'm a 38 year old entrepreneur biochemist went to MIT bu School of Medicine and I have decided to dedicate my life to studying the gut and the gut microbiome six years ago I even started a company to address this issue and I'm a routine contributor some of the publications that you see here as a specialist in gut health I've been really fortunate over the last few years to have worked with professional athletes and professional athletic teams to try to improve their gut health because it's so intimately related to things like increasing performance decreasing sickness and improving recovery time so why am I here today well I'm here to talk to you about what I think is the most important organ and that is the gut microbiome so for those of you who don't know what the gut microbiome is it's everything from your mouth to your colon from entry to exit all the bits in between so your stomach your small intestine your large intestine and all of the little critters that live in there so bacteria fungi viruses and cells there are trillions of these little critters that are living in there and we'll talk about this a little bit more later but diversity is so important in the gut so why is it important to have a healthy gut well it's really important for long-term health so if you have a healthy gut you're gonna feel more energetic you're gonna get sick less often you're gonna have better mental clarity and ultimately have better emotional well-being versus if you don't have a healthy gut a lot of research is showing that this is related to things like autoimmune conditions diabetes neurodegenerative disorders like Alzheimer's and even emotional issues like anxiety and depression so our theme for today is you are what you eat so you're probably sitting there thinking yeah you know as a kid my parents always used to tell me you are what you eat as they tried to foist broccoli of",
+    "journal": "",
+    "citations_count": 0,
+    "trust_breakdown": {
+      "author_credibility": 0.6,
+      "citation_count": 0.05,
+      "domain_authority": 0.45,
+      "recency": 0.25,
+      "medical_disclaimer_presence": 0.2
+    },
+    "risk_flags": [
+      "no_citations",
+      "outdated_medical_content",
+      "promotional_language"
+    ],
+    "scoring_reason": "no visible citations. content is outdated. abuse signals detected: promotional_language.",
+    "scraped_at": "2026-04-25T06:20:43.427390"
+  },
+  {
+    "source_id": "db9f0e22922f",
+    "source_url": "https://pubmed.ncbi.nlm.nih.gov/31315227/",
+    "source_type": "pubmed",
+    "title": "Gut Microbiome: Profound Implications for Diet and Disease.",
+    "description": "The gut microbiome plays an important role in human health and influences the development of chronic diseases ranging from metabolic disease to gastrointestinal disorders and colorectal cancer. Of increasing prevalence in Western societies, these conditions carry a high burden of care. Dietary patte",
+    "author": "Ronald D Hills, Benjamin A Pontefract, Hillary R Mishcon, Cody A Black, Steven C Sutton, Cory R Theberge",
+    "published_date": "2019-Jul-16",
+    "language": "en",
+    "region": "",
+    "topic_tags": [
+      "gut_health",
+      "nutrition",
+      "inflammation",
+      "mental_health",
+      "medicine"
+    ],
+    "trust_score": 0.74,
+    "content_chunks": [
+      "The gut microbiome plays an important role in human health and influences the development of chronic diseases ranging from metabolic disease to gastrointestinal disorders and colorectal cancer. Of increasing prevalence in Western societies, these conditions carry a high burden of care. Dietary patterns and environmental factors have a profound effect on shaping gut microbiota in real time. Diverse populations of intestinal bacteria mediate their beneficial effects through the fermentation of dietary fiber to produce short-chain fatty acids, endogenous signals with important roles in lipid homeostasis and reducing inflammation. Recent progress shows that an individual's starting microbial profile is a key determinant in predicting their response to intervention with live probiotics. The gut microbiota is complex and challenging to characterize. Enterotypes have been proposed using metrics such as alpha species diversity, the ratio of Firmicutes to Bacteroidetes phyla, and the relative abundance of beneficial genera (e.g.,Bifidobacterium,Akkermansia) versus facultative anaerobes (E. coli), pro-inflammatoryRuminococcus, or nonbacterial microbes. Microbiota composition and relative populations of bacterial species are linked to physiologic health along different axes. We review the role of diet quality, carbohydrate intake, fermentable FODMAPs, and prebiotic fiber in maintaining healthy gut flora. The implications are discussed for various conditions including obesity, diabetes, irritable bowel syndrome, inflammatory bowel disease, depression, and cardiovascular disease."
+    ],
+    "raw_text": "The gut microbiome plays an important role in human health and influences the development of chronic diseases ranging from metabolic disease to gastrointestinal disorders and colorectal cancer. Of increasing prevalence in Western societies, these conditions carry a high burden of care. Dietary patterns and environmental factors have a profound effect on shaping gut microbiota in real time. Diverse populations of intestinal bacteria mediate their beneficial effects through the fermentation of dietary fiber to produce short-chain fatty acids, endogenous signals with important roles in lipid homeostasis and reducing inflammation. Recent progress shows that an individual's starting microbial profile is a key determinant in predicting their response to intervention with live probiotics. The gut microbiota is complex and challenging to characterize. Enterotypes have been proposed using metrics such as alpha species diversity, the ratio of Firmicutes to Bacteroidetes phyla, and the relative abundance of beneficial genera (e.g.,Bifidobacterium,Akkermansia) versus facultative anaerobes (E. coli), pro-inflammatoryRuminococcus, or nonbacterial microbes. Microbiota composition and relative populations of bacterial species are linked to physiologic health along different axes. We review the role of diet quality, carbohydrate intake, fermentable FODMAPs, and prebiotic fiber in maintaining healthy gut flora. The implications are discussed for various conditions including obesity, diabetes, irritable bowel syndrome, inflammatory bowel disease, depression, and cardiovascular disease.",
+    "journal": "Nutrients",
+    "citations_count": 321,
     "trust_breakdown": {
       "author_credibility": 0.9,
       "citation_count": 1.0,
       "domain_authority": 1.0,
-      "recency": 0.55,
+      "recency": 0.25,
       "medical_disclaimer_presence": 0.2
     },
-    "risk_flags": [],
-    "scoring_reason": "strong author credibility. high-authority domain. citations present.",
-    "scraped_at": "2026-04-25T06:09:26.374992"
+    "risk_flags": [
+      "outdated_medical_content"
+    ],
+    "scoring_reason": "strong author credibility. high-authority domain. citations present. content is outdated.",
+    "scraped_at": "2026-04-25T06:20:45.496664"
   }
 ]

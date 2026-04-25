@@ -13,7 +13,10 @@ import sys
 from collections import Counter
 from datetime import datetime
 
-from config import TARGET_URLS, OUTPUT_DIR, SAMPLE_OUTPUT_PATH, SUMMARY_PATH
+from config import (
+    TARGET_URLS, OUTPUT_DIR, SAMPLE_OUTPUT_PATH, SUMMARY_PATH,
+    SCRAPED_DATA_DIR, BLOGS_OUTPUT, YOUTUBE_OUTPUT, PUBMED_OUTPUT,
+)
 from models import ScrapedDocument, SourceType
 from scrapers import BlogScraper, YouTubeScraper, PubMedScraper, ScraperError
 from pipeline import chunk_text, extract_tags, compute_trust_score
@@ -145,11 +148,32 @@ def main():
         print("\n✗ No sources were successfully scraped.")
         sys.exit(1)
 
-    # Write sample output
+    # Write combined sample output
     output_data = [json.loads(d.model_dump_json()) for d in all_docs]
     with open(SAMPLE_OUTPUT_PATH, "w", encoding="utf-8") as f:
         json.dump(output_data, f, indent=2, ensure_ascii=False)
     print(f"\n✓ Wrote {len(all_docs)} records → {SAMPLE_OUTPUT_PATH}")
+
+    # Write separate per-source-type files (assignment format)
+    os.makedirs(SCRAPED_DATA_DIR, exist_ok=True)
+    ASSIGNMENT_FIELDS = [
+        "source_url", "source_type", "author", "published_date",
+        "language", "region", "topic_tags", "trust_score", "content_chunks",
+    ]
+    source_map = {
+        "blog": ([], BLOGS_OUTPUT),
+        "youtube": ([], YOUTUBE_OUTPUT),
+        "pubmed": ([], PUBMED_OUTPUT),
+    }
+    for d in all_docs:
+        record = {k: v for k, v in json.loads(d.model_dump_json()).items() if k in ASSIGNMENT_FIELDS}
+        source_map[d.source_type.value][0].append(record)
+
+    for stype, (records, path) in source_map.items():
+        if records:
+            with open(path, "w", encoding="utf-8") as f:
+                json.dump(records, f, indent=2, ensure_ascii=False)
+            print(f"✓ Wrote {len(records)} {stype} records → {path}")
 
     # Write summary
     summary = generate_summary(all_docs)
@@ -162,9 +186,9 @@ def main():
     for i, entry in enumerate(summary["trust_ranking"], 1):
         print(f"  {i}. [{entry['trust_score']:.2f}] {entry['title']}")
 
-    print("\n═" * 60)
+    print("\n" + "=" * 60)
     print("  Done.")
-    print("═" * 60)
+    print("=" * 60)
 
 
 if __name__ == "__main__":

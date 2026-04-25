@@ -11,38 +11,34 @@
   "top_tags": [
     {
       "tag": "gut_health",
-      "count": 4
+      "count": 6
     },
     {
       "tag": "nutrition",
-      "count": 4
+      "count": 6
     },
     {
       "tag": "mental_health",
+      "count": 6
+    },
+    {
+      "tag": "medicine",
+      "count": 4
+    },
+    {
+      "tag": "inflammation",
       "count": 4
     },
     {
       "tag": "research",
       "count": 4
-    },
-    {
-      "tag": "medicine",
-      "count": 3
-    },
-    {
-      "tag": "inflammation",
-      "count": 2
-    },
-    {
-      "tag": "technology",
-      "count": 1
     }
   ],
   "trust_ranking": [
     {
-      "source_id": "666e181d4390",
-      "title": "Inferring monosynaptic connections from paired dendritic spine Ca2+imaging and l",
-      "trust_score": 0.8
+      "source_id": "db9f0e22922f",
+      "title": "Gut Microbiome: Profound Implications for Diet and Disease.",
+      "trust_score": 0.74
     },
     {
       "source_id": "46d69373b1b4",
@@ -65,10 +61,10 @@
       "trust_score": 0.34
     },
     {
-      "source_id": "67c732fbd148",
-      "title": "",
-      "trust_score": 0.24
+      "source_id": "ea783a10c97c",
+      "title": "Your Gut Microbiome: The Most Important Organ You’ve Never Heard Of | Erika Ebbe",
+      "trust_score": 0.27
     }
   ],
-  "generated_at": "2026-04-25T06:09:26.385263"
+  "generated_at": "2026-04-25T06:20:45.517173"
 }

@@ -39,14 +39,21 @@ TARGET_URLS = {
     ],
     "youtube": [
         "https://www.youtube.com/watch?v=VzPD009qTN4",
-        "https://www.youtube.com/watch?v=YB2OQDkGSjg",
+        "https://www.youtube.com/watch?v=B9RruLkAUm8",
     ],
     "pubmed": [
-        "https://pubmed.ncbi.nlm.nih.gov/35931040/",
+        "https://pubmed.ncbi.nlm.nih.gov/31315227/",
     ],
 }
 
 # ── Paths ─────────────────────────────────────────────────────────
-OUTPUT_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "output")
+_BASE = os.path.dirname(os.path.abspath(__file__))
+OUTPUT_DIR = os.path.join(_BASE, "output")
 SAMPLE_OUTPUT_PATH = os.path.join(OUTPUT_DIR, "sample_output.json")
 SUMMARY_PATH = os.path.join(OUTPUT_DIR, "summary.json")
+
+# Assignment-required separate files
+SCRAPED_DATA_DIR = os.path.join(_BASE, "scraped_data")
+BLOGS_OUTPUT = os.path.join(SCRAPED_DATA_DIR, "blogs.json")
+YOUTUBE_OUTPUT = os.path.join(SCRAPED_DATA_DIR, "youtube.json")
+PUBMED_OUTPUT = os.path.join(SCRAPED_DATA_DIR, "pubmed.json")
