@@ -1,0 +1,9 @@
+requests
+beautifulsoup4
+lxml
+youtube-transcript-api
+biopython
+langdetect
+python-dotenv
+fastapi
+uvicorn
