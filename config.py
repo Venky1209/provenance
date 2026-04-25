@@ -4,20 +4,49 @@ This module centralizes the initial seed URLs and chunking parameters used by
 the scraping and content-processing pipeline.
 """
 
+import os
+
+# ── Chunk settings ────────────────────────────────────────────────
+CHUNK_SIZE = 500
+CHUNK_OVERLAP = 50
+
+# ── HTTP settings ─────────────────────────────────────────────────
+REQUEST_TIMEOUT = 15
+
+# ── App settings ──────────────────────────────────────────────────
+APP_TITLE = "Provenance — Content Trust Scoring API"
+APP_VERSION = "1.0.0"
+APP_DESCRIPTION = (
+    "Multi-source scraping pipeline with explainable trust scoring. "
+    "Scrape blog posts, YouTube videos, and PubMed articles, then evaluate "
+    "their reliability with a weighted, transparent scoring algorithm."
+)
+
+# ── Source URLs ───────────────────────────────────────────────────
+# Selected for clear trust-score spread:
+#   - Blog 1: Harvard Health (institutional, high trust)
+#   - Blog 2: Healthline (mainstream publisher, mid trust)
+#   - Blog 3: MindBodyGreen (commercial wellness, lower trust)
+#   - YouTube 1: Kurzgesagt (credible science explainer)
+#   - YouTube 2: Thomas DeLauer (creator-style health content)
+#   - PubMed 1: Recent gut microbiome paper
+
 TARGET_URLS = {
     "blogs": [
-        "https://example.com/blog-one",
-        "https://example.com/blog-two",
-        "https://example.com/blog-three",
+        "https://www.health.harvard.edu/blog/gut-feelings-how-food-affects-your-mood-2018120715548",
+        "https://www.healthline.com/nutrition/gut-microbiome-and-health",
+        "https://www.mindbodygreen.com/articles/signs-of-an-unhealthy-gut",
     ],
     "youtube": [
-        "https://www.youtube.com/watch?v=example1",
-        "https://www.youtube.com/watch?v=example2",
+        "https://www.youtube.com/watch?v=VzPD009qTN4",
+        "https://www.youtube.com/watch?v=YB2OQDkGSjg",
     ],
     "pubmed": [
-        "https://pubmed.ncbi.nlm.nih.gov/00000000/",
+        "https://pubmed.ncbi.nlm.nih.gov/35931040/",
     ],
 }
 
-CHUNK_SIZE = 500
-CHUNK_OVERLAP = 50
+# ── Paths ─────────────────────────────────────────────────────────
+OUTPUT_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "output")
+SAMPLE_OUTPUT_PATH = os.path.join(OUTPUT_DIR, "sample_output.json")
+SUMMARY_PATH = os.path.join(OUTPUT_DIR, "summary.json")

@@ -1,0 +1,74 @@
+{
+  "total_sources": 6,
+  "by_source_type": {
+    "blog": 3,
+    "youtube": 2,
+    "pubmed": 1
+  },
+  "by_language": {
+    "en": 6
+  },
+  "top_tags": [
+    {
+      "tag": "gut_health",
+      "count": 4
+    },
+    {
+      "tag": "nutrition",
+      "count": 4
+    },
+    {
+      "tag": "mental_health",
+      "count": 4
+    },
+    {
+      "tag": "research",
+      "count": 4
+    },
+    {
+      "tag": "medicine",
+      "count": 3
+    },
+    {
+      "tag": "inflammation",
+      "count": 2
+    },
+    {
+      "tag": "technology",
+      "count": 1
+    }
+  ],
+  "trust_ranking": [
+    {
+      "source_id": "666e181d4390",
+      "title": "Inferring monosynaptic connections from paired dendritic spine Ca2+imaging and l",
+      "trust_score": 0.8
+    },
+    {
+      "source_id": "46d69373b1b4",
+      "title": "Gut feelings: How food affects your mood - Harvard Health",
+      "trust_score": 0.53
+    },
+    {
+      "source_id": "54157366721a",
+      "title": "How Does Your Gut Microbiome Affect Your Health?",
+      "trust_score": 0.47
+    },
+    {
+      "source_id": "64855c0959f4",
+      "title": "How Bacteria Rule Over Your Body – The Microbiome",
+      "trust_score": 0.35
+    },
+    {
+      "source_id": "0ec818211435",
+      "title": "10 Signs You Have A Gut Balance Issue + How To Support It",
+      "trust_score": 0.34
+    },
+    {
+      "source_id": "67c732fbd148",
+      "title": "",
+      "trust_score": 0.24
+    }
+  ],
+  "generated_at": "2026-04-25T06:09:26.385263"
+}
