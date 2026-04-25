@@ -14,7 +14,7 @@ from collections import Counter
 from datetime import datetime
 
 from config import (
-    TARGET_URLS, OUTPUT_DIR, SAMPLE_OUTPUT_PATH, SUMMARY_PATH,
+    SOURCES, OUTPUT_DIR, SAMPLE_OUTPUT_PATH, SUMMARY_PATH,
     SCRAPED_DATA_DIR, BLOGS_OUTPUT, YOUTUBE_OUTPUT, PUBMED_OUTPUT,
 )
 from models import ScrapedDocument, SourceType
@@ -137,7 +137,7 @@ def main():
 
     all_docs: list[ScrapedDocument] = []
 
-    for source_key, urls in TARGET_URLS.items():
+    for source_key, urls in SOURCES.items():
         print(f"\n[{source_key.upper()}]")
         for url in urls:
             doc = process_single(url, source_key)

@@ -16,10 +16,25 @@ from models import SourceType
 from scrapers.base_scraper import BaseScraper, ScraperError
 
 
+class InsufficientContentError(ScraperError):
+    pass
+
+
 class BlogScraper(BaseScraper):
     source_type = SourceType.BLOG
 
     def scrape(self, url: str) -> dict[str, Any]:
+        try:
+            # Primary: fast, lightweight, no browser needed (good for Railway)
+            return self._scrape_with_requests(url)
+        except InsufficientContentError:
+            # Fallback: JS-rendered sites (Next.js, React SPAs)
+            # Uses Crawl4AI + Playwright. This is mocked here as an example
+            # of how we would handle it in production.
+            import asyncio
+            return asyncio.run(self._scrape_with_crawl4ai(url))
+
+    def _scrape_with_requests(self, url: str) -> dict[str, Any]:
         html = self.fetch_html(url)
         soup = BeautifulSoup(html, "lxml")
 
@@ -31,7 +46,7 @@ class BlogScraper(BaseScraper):
         citations_count = self._count_citations(soup, raw_text)
 
         if not raw_text or len(raw_text.strip()) < 50:
-            raise ScraperError(
+            raise InsufficientContentError(
                 f"Insufficient article content from {url}",
                 source_type=self.source_type.value,
             )
@@ -152,6 +167,23 @@ class BlogScraper(BaseScraper):
         # PubMed links
         count += len(soup.find_all("a", href=re.compile(r"pubmed", re.I)))
         return count
+
+    async def _scrape_with_crawl4ai(self, url: str) -> dict[str, Any]:
+        """
+        Fallback using Crawl4AI and Playwright.
+        In a full production environment, this parses Markdown directly
+        from JS-heavy sites like Next.js SPAs.
+        """
+        # Pseudo-implementation for demonstration:
+        # from crawl4ai import AsyncWebCrawler
+        # async with AsyncWebCrawler(verbose=True) as crawler:
+        #     result = await crawler.arun(url=url, bypass_cache=True)
+        #     return { ... extract from result.markdown ... }
+        
+        raise ScraperError(
+            f"JS-rendered fallback required but Crawl4AI is not installed for {url}",
+            source_type=self.source_type.value
+        )
 
     def _guess_region(self, url: str) -> str:
         """Best-effort region guess from TLD."""

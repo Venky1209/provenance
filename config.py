@@ -31,7 +31,7 @@ APP_DESCRIPTION = (
 #   - YouTube 2: Thomas DeLauer (creator-style health content)
 #   - PubMed 1: Recent gut microbiome paper
 
-TARGET_URLS = {
+SOURCES = {
     "blogs": [
         "https://www.health.harvard.edu/blog/gut-feelings-how-food-affects-your-mood-2018120715548",
         "https://www.healthline.com/nutrition/gut-microbiome-and-health",
