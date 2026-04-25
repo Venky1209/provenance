@@ -411,6 +411,18 @@
     </header>
 
     <form class="scrape-form" id="scrapeForm">
+      <div style="margin-bottom: 1rem;">
+        <select id="sampleSelect" style="width: 100%; padding: 0.7rem; border-radius: 8px; border: 1px solid var(--border); background: var(--surface-2); color: var(--text-muted); outline: none; font-size: 0.9rem;">
+          <option value="">-- Or select a pre-configured sample source --</option>
+          <option value="blog|https://www.health.harvard.edu/blog/gut-feelings-how-food-affects-your-mood-2018120715548">Harvard Health: Gut feelings (Blog)</option>
+          <option value="blog|https://www.healthline.com/nutrition/gut-microbiome-and-health">Healthline: Gut microbiome (Blog)</option>
+          <option value="blog|https://www.mindbodygreen.com/articles/signs-of-an-unhealthy-gut">MindBodyGreen: 10 Signs (Blog)</option>
+          <option value="youtube|https://www.youtube.com/watch?v=VzPD009qTN4">Kurzgesagt: How Bacteria Rule Over Your Body (YouTube)</option>
+          <option value="youtube|https://www.youtube.com/watch?v=B9RruLkAUm8">Erika Ebbel: Your Gut Microbiome (YouTube)</option>
+          <option value="pubmed|https://pubmed.ncbi.nlm.nih.gov/31315227/">Nature: Gut Microbiome, Diet and Disease (PubMed)</option>
+        </select>
+      </div>
+
       <div class="form-row">
         <input type="url" id="urlInput" placeholder="https://example.com/article" required>
         <select id="sourceType">
@@ -471,6 +483,18 @@
     const spinner = document.getElementById('spinner');
     const errorPanel = document.getElementById('errorPanel');
     const resultPanel = document.getElementById('resultPanel');
+
+    const sampleSelect = document.getElementById('sampleSelect');
+
+    sampleSelect.addEventListener('change', (e) => {
+      if (!e.target.value) {
+        urlInput.value = '';
+        return;
+      }
+      const [type, url] = e.target.value.split('|');
+      urlInput.value = url;
+      sourceType.value = type;
+    });
 
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
