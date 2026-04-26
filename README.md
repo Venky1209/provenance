@@ -1,8 +1,8 @@
 # ✦ Provenance — Content Trust Scoring API
 
-> **Live Demo:** _[Deploy URL will go here after Railway deployment]_
+> **Live Demo:** _[https://web-production-e20d3.up.railway.app/](https://web-production-e20d3.up.railway.app/)_
 >
-> **API Docs:** _[Deploy URL]/docs_
+> **API Docs:** _[https://web-production-e20d3.up.railway.app/docs](https://web-production-e20d3.up.railway.app/docs)_
 
 Multi-source data scraping pipeline with **explainable trust scoring**. Scrapes blog posts, YouTube videos, and PubMed articles, then evaluates their reliability using a weighted, transparent scoring algorithm.
 
