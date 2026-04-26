@@ -33,6 +33,8 @@ def health():
         "version": APP_VERSION,
         "build_timestamp": datetime.now(timezone.utc).isoformat(),
         "sample_data_loaded": is_data_loaded(),
+        "author": "Venky1209",
+        "source": "https://github.com/Venky1209/provenance",
     }
 
 
