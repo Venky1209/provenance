@@ -13,7 +13,7 @@ from urllib.parse import urlparse
 from bs4 import BeautifulSoup
 
 from models import SourceType
-from scrapers.base_scraper import BaseScraper, ScraperError
+from scraper.base_scraper import BaseScraper, ScraperError
 
 
 class InsufficientContentError(ScraperError):
@@ -150,10 +150,10 @@ class BlogScraper(BaseScraper):
         if main:
             return main.get_text(separator="\n", strip=True)
 
-        # Fallback: largest text block
-        body = soup.find("body")
-        if body:
-            return body.get_text(separator="\n", strip=True)
+        # Fallback to extracting all <p> text
+        p_tags = soup.find_all("p")
+        if p_tags:
+            return "\n".join(p.get_text(separator=" ", strip=True) for p in p_tags)
 
         return ""
 

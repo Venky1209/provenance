@@ -18,8 +18,10 @@ from config import (
     SCRAPED_DATA_DIR, BLOGS_OUTPUT, YOUTUBE_OUTPUT, PUBMED_OUTPUT,
 )
 from models import ScrapedDocument, SourceType
-from scrapers import BlogScraper, YouTubeScraper, PubMedScraper, ScraperError
-from pipeline import chunk_text, extract_tags, compute_trust_score
+from scraper import BlogScraper, YouTubeScraper, PubMedScraper, ScraperError
+from scoring.trust_score import compute_trust_score
+from utils.chunking import chunk_text
+from utils.tagging import extract_tags
 from utils import clean, detect_language, generate_source_id
 
 
@@ -156,17 +158,13 @@ def main():
 
     # Write separate per-source-type files (assignment format)
     os.makedirs(SCRAPED_DATA_DIR, exist_ok=True)
-    ASSIGNMENT_FIELDS = [
-        "source_url", "source_type", "author", "published_date",
-        "language", "region", "topic_tags", "trust_score", "content_chunks",
-    ]
     source_map = {
         "blog": ([], BLOGS_OUTPUT),
         "youtube": ([], YOUTUBE_OUTPUT),
         "pubmed": ([], PUBMED_OUTPUT),
     }
     for d in all_docs:
-        record = {k: v for k, v in json.loads(d.model_dump_json()).items() if k in ASSIGNMENT_FIELDS}
+        record = json.loads(d.model_dump_json())
         source_map[d.source_type.value][0].append(record)
 
     for stype, (records, path) in source_map.items():

@@ -13,7 +13,7 @@ from Bio import Entrez
 from bs4 import BeautifulSoup
 
 from models import SourceType
-from scrapers.base_scraper import BaseScraper, ScraperError
+from scraper.base_scraper import BaseScraper, ScraperError
 
 # Required by NCBI — use a real email for production
 Entrez.email = "provenance-scraper@example.com"
@@ -77,11 +77,14 @@ class PubMedScraper(BaseScraper):
         for author_el in soup.find_all("Author"):
             last = author_el.find("LastName")
             fore = author_el.find("ForeName") or author_el.find("Initials")
+            col = author_el.find("CollectiveName")
             if last:
                 name = last.get_text(strip=True)
                 if fore:
                     name = f"{fore.get_text(strip=True)} {name}"
                 authors.append(name)
+            elif col:
+                authors.append(col.get_text(strip=True))
         author_str = ", ".join(authors) if authors else ""
 
         # Journal
@@ -130,7 +133,7 @@ class PubMedScraper(BaseScraper):
             "raw_text": abstract,
             "journal": journal,
             "citations_count": citations_count,
-            "region": "",
+            "region": "US",
         }
 
     def _fetch_via_html(self, url: str, pmid: str) -> dict[str, Any]:
@@ -175,5 +178,5 @@ class PubMedScraper(BaseScraper):
             "raw_text": abstract,
             "journal": journal,
             "citations_count": 0,
-            "region": "",
+            "region": "US",
         }

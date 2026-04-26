@@ -1,4 +1,4 @@
-# 🔍 Provenance — Content Trust Scoring API
+# ✦ Provenance — Content Trust Scoring API
 
 > **Live Demo:** _[Deploy URL will go here after Railway deployment]_
 >
@@ -45,7 +45,7 @@ Then open:
 └────────────┬───────────────────────────────────────┘
              │
    ┌─────────▼──────────┐
-   │     scrapers/       │    Blog, YouTube, PubMed
+   │     scraper/       │    Blog, YouTube, PubMed
    │  source-specific    │    HTTP + BS4, oEmbed,
    │  scraping logic     │    Entrez/Biopython
    └─────────┬───────────┘
@@ -53,17 +53,17 @@ Then open:
    ┌─────────▼──────────┐
    │     utils/          │    clean → detect_language
    │  cleaning &         │    → fingerprint
-   │  normalization      │
+   │  normalization      │    → chunk → tag_topics
    └─────────┬───────────┘
              │ cleaned text
    ┌─────────▼──────────┐
-   │     pipeline/       │    chunk → tag_topics
-   │  enrichment &       │    → compute_trust_score
+   │     scoring/        │    
+   │  enrichment &       │    compute_trust_score
    │  scoring            │
    └─────────┬───────────┘
              │ ScrapedDocument (normalized)
    ┌─────────▼──────────┐
-   │     output/         │    sample_output.json
+   │     output/         │    scraped_data.json
    │  scraped_data/      │    blogs.json, youtube.json,
    │  (artifacts)        │    pubmed.json, summary.json
    └─────────┬───────────┘
@@ -94,7 +94,7 @@ Then open:
 
 ```json
 {
-  "url": "https://www.healthline.com/nutrition/gut-microbiome-and-health",
+  "url": "https://lilianweng.github.io/posts/2023-06-23-agent/",
   "source_type": "blog"
 }
 ```
@@ -103,25 +103,25 @@ Then open:
 
 ```json
 {
-  "source_id": "a1b2c3d4e5f6",
-  "source_url": "...",
+  "source_id": "8b3f9d1a2c4e",
+  "source_url": "https://lilianweng.github.io/posts/2023-06-23-agent/",
   "source_type": "blog",
-  "title": "How Does Your Gut Microbiome Affect Your Health?",
-  "author": "Ruairi Robertson, PhD",
-  "published_date": "2023-05-18",
+  "title": "LLM Powered Autonomous Agents",
+  "author": "Lilian Weng",
+  "published_date": "2023-06-23",
   "language": "en",
-  "topic_tags": ["gut_health", "nutrition", "research"],
-  "trust_score": 0.47,
+  "topic_tags": ["artificial_intelligence", "technology", "research"],
+  "trust_score": 0.57,
   "content_chunks": ["..."],
   "trust_breakdown": {
     "author_credibility": 0.60,
-    "citation_count": 0.50,
+    "citation_count": 0.35,
     "domain_authority": 0.65,
     "recency": 0.80,
     "medical_disclaimer_presence": 0.20
   },
   "risk_flags": [],
-  "scoring_reason": "Named author with credential. Mid-authority health publisher. Citations present. Recent content."
+  "scoring_reason": "Named individual without explicit credentials. Found 35 visible citations. Recognized authority tier for lilianweng.github.io. Published within 2 years. No disclaimer found."
 }
 ```
 
@@ -173,12 +173,12 @@ The system detects and downranks:
 
 | # | Source | Type | Trust Score |
 |---|--------|------|-------------|
-| 1 | Harvard Health — Gut feelings & mood | Blog | 0.53 |
-| 2 | Healthline — Gut microbiome & health | Blog | 0.47 |
-| 3 | MindBodyGreen — Signs of unhealthy gut | Blog | 0.34 |
-| 4 | Kurzgesagt — How Bacteria Rule Your Body | YouTube | 0.35 |
-| 5 | Erika Ebbel — Your Gut Microbiome | YouTube | 0.27 |
-| 6 | PubMed — Gut Microbiome: Diet and Disease | PubMed | 0.74 |
+| 1 | Lilian Weng — LLM Powered Autonomous Agents | Blog | 0.57 |
+| 2 | BAIR — Koala: A Dialogue Model for Academic Research | Blog | 0.49 |
+| 3 | HuggingFace — Can foundation models label data? | Blog | 0.38 |
+| 4 | PubMed — Comprehensive molecular characterization... | PubMed | 0.57 |
+| 5 | MKBHD — Auto Focus (Jupyter intro fallback) | YouTube | 0.35 |
+| 6 | 3Blue1Brown — What is a neural network? | YouTube | 0.28 |
 
 ---
 
@@ -186,7 +186,7 @@ The system detects and downranks:
 
 ```
 output/
-  sample_output.json     # All 6 records (full schema)
+  scraped_data.json      # All 6 records (full schema)
   summary.json           # Aggregate metrics
 
 scraped_data/
@@ -205,16 +205,16 @@ provenance/
 │   ├── main.py           # App factory, CORS, dashboard route
 │   ├── routes.py         # All endpoint handlers
 │   └── dataset.py        # Sample data loader
-├── scrapers/             # Source-specific scrapers
+├── scraper/             # Source-specific scrapers
 │   ├── base_scraper.py   # Abstract base + error handling
 │   ├── blog_scraper.py   # BS4 metadata + content extraction
 │   ├── youtube_scraper.py # oEmbed + transcript API
 │   └── pubmed_scraper.py # Entrez E-utilities + HTML fallback
-├── pipeline/             # Processing stages
-│   ├── chunker.py        # Word-based overlapping chunks
-│   ├── topic_tagger.py   # Keyword frequency tagging
+├── scoring/              # Trust evaluation logic
 │   └── trust_score.py    # Weighted scoring + abuse detection
 ├── utils/                # Shared helpers
+│   ├── tagging.py        # Keyword frequency tagging
+│   ├── chunking.py       # Word-based overlapping chunks
 │   ├── cleaner.py        # HTML stripping + noise removal
 │   ├── language_detect.py # langdetect wrapper
 │   └── fingerprint.py    # URL → stable source_id

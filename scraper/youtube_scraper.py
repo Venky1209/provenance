@@ -14,7 +14,7 @@ import requests
 from bs4 import BeautifulSoup
 
 from models import SourceType
-from scrapers.base_scraper import BaseScraper, ScraperError, DEFAULT_HEADERS, DEFAULT_TIMEOUT
+from scraper.base_scraper import BaseScraper, ScraperError, DEFAULT_HEADERS, DEFAULT_TIMEOUT
 
 try:
     from youtube_transcript_api import YouTubeTranscriptApi
@@ -110,10 +110,13 @@ class YouTubeScraper(BaseScraper):
             return "", False
 
         try:
-            ytt_api = YouTubeTranscriptApi()
-            transcript = ytt_api.fetch(video_id)
-            segments = [snippet.text for snippet in transcript.snippets]
-            full_text = " ".join(segments)
-            return full_text, True
+            # Handle different versions of youtube-transcript-api
+            if hasattr(YouTubeTranscriptApi, 'get_transcript'):
+                transcript_list = YouTubeTranscriptApi.get_transcript(video_id)
+                segments = [item['text'] for item in transcript_list]
+            else:
+                transcript_list = YouTubeTranscriptApi().fetch(video_id)
+                segments = [item.text for item in transcript_list]
+            return " ".join(segments), True
         except Exception:
             return "", False

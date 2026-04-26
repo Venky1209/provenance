@@ -3,580 +3,2662 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Provenance — Content Trust Scoring</title>
-  <meta name="description" content="Live demo: Scrape any blog, YouTube video, or PubMed article and get an explainable trust score.">
+  <title>Provenance | Trust Scoring Demo</title>
+  <meta
+    name="description"
+    content="A live dashboard for scraping blogs, YouTube, and PubMed, then turning the results into explainable trust signals."
+  >
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+    }
 
     :root {
-      --bg: #0a0e17;
-      --surface: #111827;
-      --surface-2: #1a2234;
-      --border: #1e293b;
-      --border-focus: #3b82f6;
-      --text: #e2e8f0;
-      --text-muted: #94a3b8;
-      --accent: #3b82f6;
-      --accent-glow: rgba(59, 130, 246, 0.15);
-      --success: #10b981;
-      --warning: #f59e0b;
-      --danger: #ef4444;
-      --radius: 12px;
-      --font: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-      --mono: 'JetBrains Mono', monospace;
+      color-scheme: dark;
+      --bg: #071018;
+      --bg-2: #0b1620;
+      --panel: rgba(12, 20, 30, 0.82);
+      --panel-soft: rgba(18, 28, 40, 0.58);
+      --line: rgba(175, 213, 235, 0.14);
+      --line-strong: rgba(175, 213, 235, 0.24);
+      --text: #eef5fb;
+      --muted: #98adbf;
+      --muted-strong: #bfd2e2;
+      --accent: #8de1c4;
+      --accent-2: #7bbfff;
+      --accent-3: #ffd38a;
+      --danger: #ff9c9c;
+      --success: #b9f7d9;
+      --mono: "IBM Plex Mono", monospace;
+      --sans: "Manrope", sans-serif;
+      --radius-xl: 30px;
+      --radius-lg: 22px;
+      --radius-md: 16px;
+      --shadow: 0 26px 72px rgba(0, 0, 0, 0.32);
+      --content: 1240px;
+    }
+
+    html {
+      scroll-behavior: smooth;
+      scroll-padding-top: 100px;
     }
 
     body {
-      font-family: var(--font);
-      background: var(--bg);
-      color: var(--text);
+      margin: 0;
       min-height: 100vh;
-      line-height: 1.6;
+      color: var(--text);
+      font-family: var(--sans);
+      background:
+        radial-gradient(circle at 15% 12%, rgba(123, 191, 255, 0.12), transparent 22%),
+        radial-gradient(circle at 86% 10%, rgba(141, 225, 196, 0.12), transparent 18%),
+        radial-gradient(circle at 82% 84%, rgba(255, 211, 138, 0.05), transparent 18%),
+        linear-gradient(180deg, #071018 0%, #060b11 100%);
+      line-height: 1.5;
     }
 
-    .container {
-      max-width: 720px;
-      margin: 0 auto;
-      padding: 2rem 1.5rem;
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background-image:
+        linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+      background-size: 32px 32px;
+      mask-image: linear-gradient(180deg, rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0));
+      opacity: 0.18;
+      z-index: -1;
     }
 
-    /* ── Header ────────────────────────────────── */
-    header {
-      text-align: center;
-      margin-bottom: 2.5rem;
-    }
-
-    header h1 {
-      font-size: 2rem;
-      font-weight: 700;
-      background: linear-gradient(135deg, #3b82f6 0%, #10b981 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-      margin-bottom: 0.5rem;
-      letter-spacing: -0.02em;
-    }
-
-    header p {
-      color: var(--text-muted);
-      font-size: 0.95rem;
-    }
-
-    .nav-links {
-      margin-top: 1rem;
-      display: flex;
-      gap: 1rem;
-      justify-content: center;
-    }
-
-    .nav-links a {
-      color: var(--accent);
+    a {
+      color: inherit;
       text-decoration: none;
-      font-size: 0.85rem;
-      font-weight: 500;
-      padding: 0.4rem 1rem;
-      border: 1px solid var(--border);
-      border-radius: 999px;
-      transition: all 0.2s;
     }
 
-    .nav-links a:hover {
-      border-color: var(--accent);
-      background: var(--accent-glow);
+    button,
+    input,
+    select {
+      font: inherit;
     }
 
-    /* ── Form ──────────────────────────────────── */
-    .scrape-form {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 1.5rem;
-      margin-bottom: 2rem;
+    .shell {
+      width: min(calc(100% - 24px), var(--content));
+      margin: 0 auto;
+      padding: 16px 0 56px;
     }
 
-    .form-row {
+    .glass {
+      position: relative;
+      background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0.02)),
+        linear-gradient(180deg, rgba(16, 24, 34, 0.88), rgba(11, 18, 28, 0.76));
+      border: 1px solid var(--line);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(18px) saturate(120%);
+      -webkit-backdrop-filter: blur(18px) saturate(120%);
+    }
+
+    .glass::before {
+      content: "";
+      position: absolute;
+      inset: 1px;
+      border-radius: inherit;
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.06), transparent 22%, transparent 78%, rgba(255, 255, 255, 0.03));
+      pointer-events: none;
+    }
+
+    .topbar {
+      position: sticky;
+      top: 10px;
+      z-index: 30;
       display: flex;
-      gap: 0.75rem;
-      margin-bottom: 1rem;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 14px 20px;
+      margin-bottom: 24px;
+      border-radius: 24px;
     }
 
-    .form-row input[type="url"] {
-      flex: 1;
-      padding: 0.7rem 1rem;
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      background: var(--surface-2);
-      color: var(--text);
-      font-family: var(--mono);
-      font-size: 0.9rem;
-      outline: none;
-      transition: border-color 0.2s;
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-width: 0;
     }
 
-    .form-row input[type="url"]:focus {
-      border-color: var(--border-focus);
-      box-shadow: 0 0 0 3px var(--accent-glow);
+    .brand-mark {
+      width: 42px;
+      height: 42px;
+      border-radius: 14px;
+      display: grid;
+      place-items: center;
+      font-weight: 800;
+      letter-spacing: -0.04em;
+      background:
+        radial-gradient(circle at 35% 30%, rgba(255, 255, 255, 0.15), transparent 48%),
+        linear-gradient(135deg, rgba(123, 191, 255, 0.28), rgba(141, 225, 196, 0.2));
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
+      flex: 0 0 auto;
     }
 
-    .form-row input[type="url"]::placeholder {
-      color: var(--text-muted);
+    .brand-copy strong {
+      display: block;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      font-size: 0.88rem;
     }
 
-    .form-row select {
-      padding: 0.7rem 1rem;
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      background: var(--surface-2);
-      color: var(--text);
-      font-family: var(--font);
-      font-size: 0.9rem;
-      cursor: pointer;
-      outline: none;
+    .brand-copy span {
+      display: block;
+      color: var(--muted);
+      font-size: 0.78rem;
+      margin-top: 2px;
     }
 
-    .btn-scrape {
-      width: 100%;
-      padding: 0.8rem;
-      border: none;
-      border-radius: 8px;
-      background: linear-gradient(135deg, #3b82f6, #2563eb);
-      color: #fff;
-      font-family: var(--font);
-      font-size: 0.95rem;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.2s;
-      letter-spacing: 0.01em;
+    .nav {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+      align-items: center;
     }
 
-    .btn-scrape:hover:not(:disabled) {
+    .nav-link {
+      padding: 9px 14px;
+      border-radius: 999px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      background: rgba(255, 255, 255, 0.03);
+      color: var(--muted);
+      font-size: 0.8rem;
+      transition: transform 180ms ease, border-color 180ms ease, color 180ms ease, background 180ms ease;
+      white-space: nowrap;
+    }
+
+    .nav-link:hover {
       transform: translateY(-1px);
-      box-shadow: 0 4px 16px rgba(59, 130, 246, 0.35);
+      border-color: var(--line-strong);
+      color: var(--text);
+      background: rgba(255, 255, 255, 0.05);
     }
 
-    .btn-scrape:disabled {
-      opacity: 0.6;
-      cursor: wait;
+    .hero {
+      display: grid;
+      grid-template-columns: 1fr;
+      max-width: 800px;
+      margin: 0 auto;
+      gap: 18px;
+      align-items: stretch;
     }
 
-    /* ── Loading ───────────────────────────────── */
-    .spinner {
-      display: none;
-      text-align: center;
-      padding: 2rem;
-      color: var(--text-muted);
+    .hero-copy,
+    .hero-board,
+    .section-card,
+    .demo-card,
+    .result-card,
+    .source-card,
+    .step-card,
+    .metric-card {
+      padding: 24px;
+      border-radius: var(--radius-xl);
     }
 
-    .spinner.active { display: block; }
-
-    .spinner::before {
-      content: '';
-      display: inline-block;
-      width: 24px;
-      height: 24px;
-      border: 3px solid var(--border);
-      border-top-color: var(--accent);
-      border-radius: 50%;
-      animation: spin 0.8s linear infinite;
-      margin-bottom: 0.5rem;
-      vertical-align: middle;
-      margin-right: 0.5rem;
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 7px 12px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.035);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      color: var(--muted);
+      font-family: var(--mono);
+      font-size: 0.68rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+    
+    .eyebrow svg {
+      color: var(--accent);
+      filter: drop-shadow(0 0 6px rgba(141, 225, 196, 0.5));
     }
 
-    @keyframes spin { to { transform: rotate(360deg); } }
-
-    /* ── Error ─────────────────────────────────── */
-    .error-panel {
-      display: none;
-      background: rgba(239, 68, 68, 0.1);
-      border: 1px solid rgba(239, 68, 68, 0.3);
-      border-radius: var(--radius);
-      padding: 1rem 1.25rem;
-      margin-bottom: 1.5rem;
-      color: #fca5a5;
-      font-size: 0.9rem;
+    h1,
+    h2,
+    h3,
+    h4,
+    p {
+      margin: 0;
     }
 
-    .error-panel.active { display: block; }
+    .hero-copy {
+      display: grid;
+      align-content: start;
+      min-height: 100%;
+    }
 
-    /* ── Result Panel ─────────────────────────── */
-    .result {
-      display: none;
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
+    .hero-copy h1 {
+      margin-top: 18px;
+      max-width: 11ch;
+      font-size: clamp(3rem, 6.4vw, 5.9rem);
+      line-height: 0.92;
+      letter-spacing: -0.08em;
+    }
+
+    .hero-copy p {
+      margin-top: 16px;
+      max-width: 54ch;
+      color: var(--muted);
+      font-size: 1rem;
+    }
+
+    .hero-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 22px;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 11px 15px;
+      border-radius: 999px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      background: rgba(255, 255, 255, 0.04);
+      color: var(--text);
+      font-weight: 700;
+      font-size: 0.85rem;
+      transition: transform 180ms ease, border-color 180ms ease, background 180ms ease;
+    }
+
+    .btn:hover {
+      transform: translateY(-1px);
+      border-color: rgba(141, 225, 196, 0.28);
+      background: rgba(141, 225, 196, 0.08);
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, rgba(141, 225, 196, 0.2), rgba(123, 191, 255, 0.18));
+      border-color: rgba(141, 225, 196, 0.22);
+    }
+
+    .hero-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 24px;
+    }
+
+    .hero-chip {
+      padding: 10px 13px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.035);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      color: var(--muted);
+      font-size: 0.82rem;
+    }
+
+    .hero-board {
+      display: grid;
+      gap: 12px;
+      grid-template-rows: auto auto 1fr;
+      min-height: 100%;
+    }
+
+    .board-card {
+      padding: 18px;
+      border-radius: 22px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      background: rgba(255, 255, 255, 0.03);
+    }
+
+    .board-stat {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .board-stat strong {
+      display: block;
+      font-size: clamp(1.8rem, 4vw, 3rem);
+      line-height: 1;
+      letter-spacing: -0.08em;
+    }
+
+    .board-stat span {
+      display: block;
+      color: var(--muted);
+      font-size: 0.8rem;
+      margin-top: 4px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      font-family: var(--mono);
+    }
+
+    .board-bars {
+      display: grid;
+      gap: 12px;
+      padding-top: 2px;
+    }
+
+    .bar-row {
+      display: grid;
+      gap: 8px;
+    }
+
+    .bar-row header {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      color: var(--muted);
+      font-size: 0.8rem;
+    }
+
+    .track {
+      position: relative;
+      height: 10px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.06);
       overflow: hidden;
     }
 
-    .result.active { display: block; }
-
-    .result-header {
-      padding: 1.25rem 1.5rem;
-      border-bottom: 1px solid var(--border);
+    .track span {
+      position: absolute;
+      inset: 0;
+      width: 50%;
+      border-radius: inherit;
+      background: linear-gradient(90deg, rgba(141, 225, 196, 0.9), rgba(123, 191, 255, 0.9));
     }
 
-    .result-header h2 {
-      font-size: 1.15rem;
+    .score-shell {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 20px;
+      align-items: center;
+      padding: 18px;
+      border-radius: var(--radius-lg);
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    .grade-badge {
+      display: grid;
+      place-items: center;
+      width: 72px;
+      height: 72px;
+      border-radius: 16px;
+      background: rgba(11, 22, 32, 0.6);
+      border: 2px solid rgba(255, 255, 255, 0.1);
+      font-size: 2.8rem;
+      font-weight: 800;
+      color: var(--text);
+      box-shadow: inset 0 2px 10px rgba(0,0,0,0.2);
+      flex: 0 0 auto;
+      transition: all 0.3s ease;
+    }
+
+    .stack-note {
+      display: grid;
+      gap: 10px;
+    }
+
+    .stack-note p {
+      color: var(--muted);
+      font-size: 0.86rem;
+    }
+
+    .stack-note ul {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      display: grid;
+      gap: 8px;
+    }
+
+    .stack-note li {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      color: var(--muted-strong);
+      font-size: 0.85rem;
+    }
+
+    .stack-note li::before {
+      content: "";
+      width: 7px;
+      height: 7px;
+      border-radius: 999px;
+      margin-top: 0.45rem;
+      background: linear-gradient(135deg, var(--accent-3), var(--accent-2));
+      flex: 0 0 auto;
+    }
+
+    .section {
+      margin-top: 20px;
+    }
+
+    .section-head {
+      display: flex;
+      align-items: end;
+      justify-content: space-between;
+      gap: 18px;
+      margin-bottom: 14px;
+    }
+
+    .section-head h2 {
+      font-size: clamp(1.35rem, 2.5vw, 2rem);
+      letter-spacing: -0.06em;
+    }
+
+    .section-head p {
+      max-width: 58ch;
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+
+    .metrics-grid,
+    .source-grid,
+    .step-grid,
+    .demo-grid,
+    .result-grid,
+    .footer-links {
+      display: grid;
+      gap: 14px;
+    }
+
+    .metrics-grid {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+
+    .metric-card strong {
+      display: block;
+      margin-bottom: 4px;
+      font-size: 1.8rem;
+      line-height: 1;
+      letter-spacing: -0.06em;
+    }
+
+    .metric-card span {
+      display: block;
+      color: var(--muted);
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      font-family: var(--mono);
+    }
+
+    .metric-card p {
+      margin-top: 12px;
+      color: var(--muted);
+      font-size: 0.86rem;
+    }
+
+    .source-grid {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .source-card {
+      display: grid;
+      gap: 14px;
+      position: relative;
+      overflow: hidden;
+      min-height: 280px;
+      background:
+        radial-gradient(circle at 88% 12%, rgba(123, 191, 255, 0.11), transparent 28%),
+        rgba(255, 255, 255, 0.03);
+    }
+
+    .source-card::after {
+      content: "";
+      position: absolute;
+      inset: auto -40px -40px auto;
+      width: 150px;
+      height: 150px;
+      border-radius: 999px;
+      background: radial-gradient(circle, rgba(141, 225, 196, 0.18), transparent 70%);
+      pointer-events: none;
+    }
+
+    .source-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 7px 10px;
+      border-radius: 999px;
+      font-family: var(--mono);
+      font-size: 0.68rem;
+      color: var(--muted);
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    .source-card h3 {
+      font-size: 1.1rem;
+      line-height: 1.05;
+      letter-spacing: -0.04em;
+      margin-top: 6px;
+    }
+
+    .source-card p {
+      color: var(--muted);
+      font-size: 0.86rem;
+    }
+
+    .source-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      padding: 7px 10px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.035);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      color: var(--muted-strong);
+      font-size: 0.76rem;
+    }
+
+    .process-section {
+      display: grid;
+      gap: 18px;
+      align-items: start;
+    }
+
+    .process-track-shell {
+      position: relative;
+      padding: 12px 10px 14px;
+      border-radius: var(--radius-xl);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      background:
+        radial-gradient(circle at 8% 8%, rgba(123, 191, 255, 0.08), transparent 26%),
+        rgba(255, 255, 255, 0.02);
+      overflow: hidden;
+    }
+
+    .process-track-shell::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(90deg, rgba(255, 255, 255, 0.03), transparent 18%, transparent 82%, rgba(255, 255, 255, 0.03));
+      pointer-events: none;
+    }
+
+    .process-rail {
+      position: absolute;
+      left: 42px;
+      right: 116px;
+      top: 30px;
+      height: 5px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.13);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .process-rail span {
+      display: block;
+      width: 0%;
+      height: 100%;
+      border-radius: inherit;
+      background: linear-gradient(90deg, rgba(141, 225, 196, 0.95), rgba(123, 191, 255, 0.95));
+      transition: width 260ms ease;
+    }
+
+    .process-controls {
+      position: absolute;
+      top: 50%;
+      right: 16px;
+      transform: translateY(-50%);
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      z-index: 3;
+    }
+
+    .process-control {
+      width: 52px;
+      height: 52px;
+      border-radius: 999px;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      background: #0f172a;
+      color: #ffffff;
+      display: grid;
+      place-items: center;
+      font-size: 1.8rem;
       font-weight: 600;
-      margin-bottom: 0.35rem;
-      line-height: 1.4;
+      line-height: 1;
+      cursor: pointer;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.8), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+      transition: transform 150ms ease, border-color 150ms ease, background 150ms ease, box-shadow 150ms ease;
+    }
+
+    .process-control:hover {
+      transform: translateY(-2px);
+      border-color: rgba(141, 225, 196, 0.6);
+      background: #1e293b;
+      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.9), inset 0 1px 0 rgba(255, 255, 255, 0.15);
+      color: #fff;
+    }
+
+    .process-control:disabled {
+      opacity: 0.3;
+      cursor: not-allowed;
+      transform: none;
+      border-color: rgba(255, 255, 255, 0.05);
+      background: #0b121c;
+      color: rgba(255, 255, 255, 0.2);
+      box-shadow: none;
+    }
+
+    .process-steps {
+      position: relative;
+      display: grid;
+      grid-auto-flow: column;
+      grid-auto-columns: clamp(290px, 40vw, 500px);
+      gap: 14px;
+      overflow-x: auto;
+      scroll-snap-type: x mandatory;
+      scroll-padding-inline: 12px;
+      overscroll-behavior-x: contain;
+      scrollbar-width: none;
+      -ms-overflow-style: none;
+      padding: 56px 96px 18px 10px;
+      z-index: 1;
+    }
+
+    .process-steps::-webkit-scrollbar {
+      display: none;
+    }
+
+    .step-card {
+      position: relative;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      background: rgba(255, 255, 255, 0.03);
+      transition: transform 180ms ease, border-color 180ms ease, background 180ms ease, box-shadow 180ms ease;
+    }
+
+    .process-step {
+      scroll-snap-align: center;
+      min-height: 260px;
+      padding-top: 54px;
+      cursor: pointer;
+    }
+
+    .process-step::before {
+      content: "";
+      position: absolute;
+      top: 14px;
+      left: 50%;
+      width: 18px;
+      height: 18px;
+      border-radius: 999px;
+      transform: translateX(-50%);
+      background: var(--bg-2);
+      border: 2px solid rgba(191, 210, 226, 0.72);
+      box-shadow: 0 0 0 4px rgba(7, 16, 24, 0.7);
+      z-index: 2;
+    }
+
+    .process-step.active {
+      transform: translateY(-8px);
+      border-color: rgba(123, 191, 255, 0.3);
+      background:
+        radial-gradient(circle at 90% 12%, rgba(123, 191, 255, 0.12), transparent 30%),
+        rgba(255, 255, 255, 0.06);
+      box-shadow: 0 20px 42px rgba(0, 0, 0, 0.24);
+    }
+
+    .process-step.active::before {
+      background: rgba(141, 225, 196, 0.95);
+      border-color: rgba(141, 225, 196, 0.95);
+      box-shadow: 0 0 0 5px rgba(141, 225, 196, 0.2);
+    }
+
+    .step-kicker {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 7px 11px;
+      border-radius: 999px;
+      font-family: var(--mono);
+      font-size: 0.67rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--muted);
+      background: rgba(255, 255, 255, 0.035);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .step-card h3 {
+      margin-top: 14px;
+      font-size: clamp(1.2rem, 2vw, 1.8rem);
+      line-height: 1.04;
+      letter-spacing: -0.05em;
+      max-width: 13ch;
+    }
+
+    .step-card p {
+      margin-top: 10px;
+      color: var(--muted);
+      font-size: 0.88rem;
+      max-width: 48ch;
+    }
+
+    .step-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 14px;
+    }
+
+    .process-stage {
+      position: static;
+      display: grid;
+      gap: 14px;
+      padding: 24px;
+      min-height: 0;
+      background:
+        radial-gradient(circle at 16% 12%, rgba(123, 191, 255, 0.14), transparent 24%),
+        radial-gradient(circle at 78% 82%, rgba(141, 225, 196, 0.08), transparent 22%),
+        linear-gradient(180deg, rgba(15, 24, 34, 0.92), rgba(8, 14, 22, 0.94));
+    }
+
+    .stage-top {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 14px;
+    }
+
+    .stage-top h3 {
+      margin-top: 10px;
+      font-size: clamp(1.6rem, 3vw, 2.3rem);
+      line-height: 1;
+      letter-spacing: -0.07em;
+      max-width: 11ch;
+    }
+
+    .stage-top p {
+      margin-top: 10px;
+      color: var(--muted);
+      font-size: 0.9rem;
+      max-width: 46ch;
+    }
+
+    .stage-pass {
+      min-width: 122px;
+      padding: 16px;
+      border-radius: 18px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      background: rgba(255, 255, 255, 0.04);
+    }
+
+    .stage-pass span {
+      display: block;
+      font-family: var(--mono);
+      color: var(--muted);
+      font-size: 0.7rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      margin-bottom: 10px;
+    }
+
+    .stage-pass strong {
+      display: block;
+      font-size: 2rem;
+      line-height: 1;
+      letter-spacing: -0.06em;
+    }
+
+    .stage-body {
+      display: grid;
+      gap: 12px;
+      flex: 1 1 auto;
+      align-content: start;
+    }
+
+    .stage-panel {
+      padding: 18px;
+      border-radius: 20px;
+      background: rgba(255, 255, 255, 0.035);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .stage-panel h4 {
+      font-size: 0.72rem;
+      font-family: var(--mono);
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 10px;
+    }
+
+    .stage-panel p {
+      color: var(--muted-strong);
+      font-size: 0.88rem;
+    }
+
+    .stage-points {
+      display: grid;
+      gap: 10px;
+    }
+
+    .stage-point {
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+      color: var(--muted-strong);
+      font-size: 0.85rem;
+    }
+
+    .stage-point::before {
+      content: "";
+      width: 7px;
+      height: 7px;
+      border-radius: 999px;
+      margin-top: 0.45rem;
+      flex: 0 0 auto;
+      background: linear-gradient(135deg, var(--accent), var(--accent-2));
+    }
+
+    .scrape-doc-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 20px;
+    }
+
+    .scrape-doc-card {
+      padding: 28px;
+      border-radius: var(--radius-xl);
+      display: grid;
+      gap: 16px;
+      transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    
+    .scrape-doc-card:hover {
+      transform: translateY(-4px) scale(1.01);
+      box-shadow: 0 24px 48px rgba(0, 0, 0, 0.4);
+    }
+
+    .scrape-doc-card h3 {
+      font-size: 1.25rem;
+      letter-spacing: -0.04em;
+      line-height: 1.15;
+      color: #fff;
+    }
+
+    .scrape-list {
+      list-style: none;
+      margin: 8px 0 0;
+      padding: 0;
+      display: grid;
+      gap: 20px;
+    }
+
+    .scrape-list li {
+      position: relative;
+      padding-left: 38px;
+      color: var(--muted-strong);
+      font-size: 0.9rem;
+      line-height: 1.5;
+    }
+
+    .step-badge {
+      position: absolute;
+      left: 0;
+      top: -2px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 24px;
+      height: 24px;
+      border-radius: 6px;
+      background: rgba(141, 225, 196, 0.1);
+      border: 1px solid rgba(141, 225, 196, 0.2);
+      color: var(--accent);
+      font-family: var(--mono);
+      font-size: 0.75rem;
+      font-weight: 600;
+      box-shadow: 0 2px 10px rgba(141, 225, 196, 0.1);
+    }
+    
+    .step-badge-blue {
+      background: rgba(123, 191, 255, 0.1);
+      border-color: rgba(123, 191, 255, 0.2);
+      color: var(--accent-2);
+      box-shadow: 0 2px 10px rgba(123, 191, 255, 0.1);
+    }
+
+    .scrape-list code {
+      font-family: var(--mono);
+      background: rgba(255, 255, 255, 0.08);
+      padding: 3px 6px;
+      border-radius: 5px;
+      font-size: 0.82rem;
+      color: var(--text);
+    }
+
+    .demo-grid {
+      grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+      align-items: start;
+    }
+
+    .demo-card {
+      display: grid;
+      gap: 14px;
+    }
+
+    .demo-card h2 {
+      font-size: clamp(1.5rem, 2.8vw, 2.2rem);
+      line-height: 1.05;
+      letter-spacing: -0.06em;
+      max-width: 14ch;
+      margin-top: 14px;
+    }
+
+    .demo-card p {
+      color: var(--muted);
+      font-size: 0.92rem;
+      max-width: 56ch;
+    }
+
+    .demo-points {
+      display: grid;
+      gap: 10px;
+      margin-top: 12px;
+    }
+
+    .demo-point {
+      padding: 14px 16px;
+      border-radius: 18px;
+      background: rgba(255, 255, 255, 0.035);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .demo-point strong {
+      display: block;
+      margin-bottom: 4px;
+      font-size: 0.86rem;
+    }
+
+    .demo-point span {
+      color: var(--muted);
+      font-size: 0.82rem;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 180px;
+      gap: 12px;
+    }
+
+    .field {
+      display: grid;
+      gap: 7px;
+    }
+
+    .field label {
+      font-family: var(--mono);
+      font-size: 0.68rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    .field input,
+    .field select {
+      width: 100%;
+      padding: 13px 14px;
+      border-radius: 16px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      background: rgba(255, 255, 255, 0.04);
+      color: var(--text);
+      outline: none;
+      transition: border-color 180ms ease, background 180ms ease;
+    }
+
+    .field input:focus,
+    .field select:focus {
+      border-color: rgba(141, 225, 196, 0.34);
+      background: rgba(255, 255, 255, 0.06);
+    }
+
+    .submit-btn {
+      align-self: end;
+      display: inline-flex;
+      justify-content: center;
+      align-items: center;
+      padding: 13px 16px;
+      border: 0;
+      border-radius: 16px;
+      background: linear-gradient(135deg, rgba(141, 225, 196, 0.95), rgba(123, 191, 255, 0.92));
+      color: #061018;
+      font-weight: 800;
+      cursor: pointer;
+      transition: transform 180ms ease, filter 180ms ease;
+    }
+
+    .submit-btn:hover {
+      transform: translateY(-1px);
+      filter: brightness(1.03);
+    }
+
+    .submit-btn:disabled {
+      opacity: 0.6;
+      cursor: progress;
+      transform: none;
+    }
+
+    .status-row {
+      display: none;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 12px 14px;
+      border-radius: 16px;
+      border: 1px solid rgba(141, 225, 196, 0.18);
+      background: rgba(141, 225, 196, 0.08);
+      color: var(--muted-strong);
+      font-size: 0.85rem;
+    }
+
+    .status-row.active {
+      display: flex;
+    }
+
+    .spinner {
+      width: 14px;
+      height: 14px;
+      border-radius: 999px;
+      border: 2px solid rgba(255, 255, 255, 0.18);
+      border-top-color: var(--accent);
+      animation: spin 900ms linear infinite;
+      flex: 0 0 auto;
+    }
+
+    .error-panel {
+      display: none;
+      padding: 12px 14px;
+      border-radius: 16px;
+      border: 1px solid rgba(255, 156, 156, 0.2);
+      background: rgba(255, 156, 156, 0.08);
+      color: #ffd5d5;
+      font-size: 0.85rem;
+    }
+
+    .error-panel.active {
+      display: block;
+    }
+
+    .result-card {
+      display: grid;
+      gap: 14px;
+      min-height: 100%;
     }
 
     .result-meta {
       display: flex;
       flex-wrap: wrap;
-      gap: 1rem;
-      font-size: 0.8rem;
-      color: var(--text-muted);
+      gap: 8px;
     }
 
-    .result-meta span::before {
-      content: attr(data-label);
-      color: var(--text-muted);
-      opacity: 0.6;
-      margin-right: 0.3rem;
-    }
-
-    /* ── Trust Score Badge ─────────────────────── */
-    .trust-section {
-      padding: 1.25rem 1.5rem;
-      border-bottom: 1px solid var(--border);
-      display: flex;
+    .meta-pill {
+      display: inline-flex;
       align-items: center;
-      gap: 1.5rem;
+      padding: 7px 10px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      color: var(--muted-strong);
+      font-size: 0.74rem;
     }
 
-    .trust-badge {
-      width: 72px;
-      height: 72px;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 1.4rem;
-      font-weight: 700;
-      font-family: var(--mono);
-      flex-shrink: 0;
-      border: 3px solid;
-    }
-
-    .trust-badge.high { border-color: var(--success); color: var(--success); background: rgba(16, 185, 129, 0.1); }
-    .trust-badge.mid { border-color: var(--warning); color: var(--warning); background: rgba(245, 158, 11, 0.1); }
-    .trust-badge.low { border-color: var(--danger); color: var(--danger); background: rgba(239, 68, 68, 0.1); }
-
-    .trust-details { flex: 1; }
-    .trust-details p {
-      font-size: 0.85rem;
-      color: var(--text-muted);
-      margin-bottom: 0.5rem;
-    }
-
-    .trust-factors {
+    .score-shell {
       display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 0.35rem;
-      font-size: 0.78rem;
+      grid-template-columns: 170px 1fr;
+      gap: 14px;
+      align-items: center;
+      padding: 16px;
+      border-radius: 24px;
+      background: rgba(255, 255, 255, 0.035);
+      border: 1px solid rgba(255, 255, 255, 0.08);
     }
 
-    .trust-factors span {
-      color: var(--text-muted);
+    .score-ring {
+      --score-fill: 0deg;
+      width: 170px;
+      aspect-ratio: 1;
+      border-radius: 999px;
+      display: grid;
+      place-items: center;
+      background:
+        radial-gradient(circle at center, rgba(7, 16, 24, 0.94) 58%, transparent 60%),
+        conic-gradient(from 0deg, rgba(141, 225, 196, 0.96) 0deg var(--score-fill), rgba(255, 255, 255, 0.08) var(--score-fill) 360deg);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05);
     }
 
-    .trust-factors strong {
-      color: var(--text);
+    .score-ring strong {
+      display: block;
+      font-size: 2.2rem;
+      line-height: 1;
+      letter-spacing: -0.08em;
+      text-align: center;
+    }
+
+    .score-ring span {
+      display: block;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
       font-family: var(--mono);
-      font-weight: 500;
+      font-size: 0.68rem;
+      text-align: center;
+      margin-top: 4px;
     }
 
-    /* ── Tags ──────────────────────────────────── */
-    .tags-section {
-      padding: 1rem 1.5rem;
-      border-bottom: 1px solid var(--border);
+    .result-title {
+      font-size: 1.8rem;
+      line-height: 1.02;
+      letter-spacing: -0.06em;
+      margin-bottom: 10px;
+    }
+
+    .result-summary {
+      color: var(--muted);
+      font-size: 0.92rem;
+    }
+
+    .breakdown-grid,
+    .chunk-list,
+    .flag-row {
+      display: grid;
+      gap: 10px;
+    }
+
+    .breakdown-row {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 12px;
+      align-items: start;
+      padding: 13px 14px;
+      border-radius: 18px;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .breakdown-row--good {
+      border-color: rgba(185, 247, 217, 0.2);
+      background: rgba(185, 247, 217, 0.07);
+    }
+
+    .breakdown-row--mixed {
+      border-color: rgba(255, 211, 138, 0.24);
+      background: rgba(255, 211, 138, 0.08);
+    }
+
+    .breakdown-row--bad {
+      border-color: rgba(255, 156, 156, 0.24);
+      background: rgba(255, 156, 156, 0.08);
+    }
+
+    .breakdown-main {
+      display: grid;
+      gap: 8px;
+    }
+
+    .breakdown-head {
       display: flex;
       flex-wrap: wrap;
-      gap: 0.5rem;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
     }
 
-    .tag {
-      font-size: 0.75rem;
-      padding: 0.25rem 0.7rem;
-      border-radius: 999px;
-      background: var(--accent-glow);
-      color: var(--accent);
-      border: 1px solid rgba(59, 130, 246, 0.2);
-      font-weight: 500;
-    }
-
-    /* ── Risk Flags ────────────────────────────── */
-    .flags-section {
-      padding: 1rem 1.5rem;
-      border-bottom: 1px solid var(--border);
-    }
-
-    .flags-section h3 {
-      font-size: 0.8rem;
-      color: var(--text-muted);
-      margin-bottom: 0.5rem;
-      font-weight: 500;
+    .breakdown-head strong {
+      display: block;
+      margin: 0;
+      font-size: 0.78rem;
       text-transform: uppercase;
-      letter-spacing: 0.05em;
+      letter-spacing: 0.08em;
+      color: var(--muted);
+    }
+
+    .breakdown-state {
+      display: inline-flex;
+      align-items: center;
+      padding: 4px 9px;
+      border-radius: 999px;
+      border: 1px solid transparent;
+      font-family: var(--mono);
+      font-size: 0.64rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    .breakdown-state--good {
+      color: #dcffec;
+      background: rgba(185, 247, 217, 0.14);
+      border-color: rgba(185, 247, 217, 0.28);
+    }
+
+    .breakdown-state--mixed {
+      color: #ffe6bd;
+      background: rgba(255, 211, 138, 0.16);
+      border-color: rgba(255, 211, 138, 0.32);
+    }
+
+    .breakdown-state--bad {
+      color: #ffd7d7;
+      background: rgba(255, 156, 156, 0.16);
+      border-color: rgba(255, 156, 156, 0.32);
+    }
+
+    .breakdown-track {
+      height: 9px;
+      background: rgba(255, 255, 255, 0.1);
+    }
+
+    .breakdown-fill--good {
+      background: linear-gradient(90deg, rgba(185, 247, 217, 0.95), rgba(141, 225, 196, 0.9));
+    }
+
+    .breakdown-fill--mixed {
+      background: linear-gradient(90deg, rgba(255, 211, 138, 0.95), rgba(255, 180, 120, 0.92));
+    }
+
+    .breakdown-fill--bad {
+      background: linear-gradient(90deg, rgba(255, 156, 156, 0.95), rgba(255, 120, 120, 0.92));
+    }
+
+    .breakdown-reason {
+      margin: 0;
+      color: var(--muted-strong);
+      font-size: 0.82rem;
+      line-height: 1.4;
+    }
+
+    .breakdown-row .value {
+      font-family: var(--mono);
+      font-size: 1rem;
+      text-align: right;
+      letter-spacing: -0.04em;
+      margin-top: 2px;
+    }
+
+    .flag-row {
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
     }
 
     .flag {
-      display: inline-block;
-      font-size: 0.75rem;
-      padding: 0.2rem 0.6rem;
+      padding: 9px 11px;
       border-radius: 999px;
-      background: rgba(239, 68, 68, 0.1);
-      color: #fca5a5;
-      border: 1px solid rgba(239, 68, 68, 0.2);
-      margin: 0.2rem 0.3rem 0.2rem 0;
-      font-family: var(--mono);
+      font-size: 0.76rem;
+      background: rgba(255, 156, 156, 0.1);
+      border: 1px solid rgba(255, 156, 156, 0.18);
+      color: #ffd9d9;
     }
 
-    .no-flags {
-      font-size: 0.8rem;
-      color: var(--success);
-    }
-
-    /* ── Chunks Preview ────────────────────────── */
-    .chunks-section {
-      padding: 1.25rem 1.5rem;
-    }
-
-    .chunks-section h3 {
-      font-size: 0.8rem;
-      color: var(--text-muted);
-      margin-bottom: 0.75rem;
-      font-weight: 500;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
+    .flag.good {
+      background: rgba(185, 247, 217, 0.08);
+      border-color: rgba(185, 247, 217, 0.16);
+      color: #dcffec;
     }
 
     .chunk {
-      background: var(--surface-2);
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      padding: 0.8rem 1rem;
-      margin-bottom: 0.5rem;
-      font-size: 0.8rem;
-      color: var(--text-muted);
-      line-height: 1.5;
-      max-height: 120px;
-      overflow: hidden;
-      position: relative;
+      padding: 14px 15px;
+      border-radius: 18px;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.08);
     }
 
-    .chunk::after {
-      content: '';
+    .chunk strong {
+      display: block;
+      margin-bottom: 8px;
+      font-family: var(--mono);
+      font-size: 0.7rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    .chunk p {
+      color: var(--muted);
+      font-size: 0.83rem;
+    }
+
+    .footer {
+      margin-top: 18px;
+      padding: 18px 20px;
+      border-radius: 22px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      color: var(--muted);
+      font-size: 0.8rem;
+    }
+
+    .footer-links {
+      grid-template-columns: repeat(3, auto);
+      gap: 10px;
+    }
+
+    .footer-links a {
+      display: inline-flex;
+      align-items: center;
+      padding: 8px 12px;
+      border-radius: 999px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      background: rgba(255, 255, 255, 0.03);
+    }
+
+    .reveal {
+      opacity: 0;
+      transform: translateY(18px);
+      transition: opacity 560ms ease, transform 560ms ease;
+      transition-delay: var(--reveal-delay, 0ms);
+    }
+
+    .reveal.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .card-loader {
+      --time-animation: 4s;
+      --size: 0.35;
       position: absolute;
-      bottom: 0;
+      top: -8px;
+      right: -8px;
+      width: 100px;
+      height: 100px;
+      border-radius: 50%;
+      transform: scale(var(--size));
+      transform-origin: top right;
+      box-shadow:
+        0 0 25px 0 var(--color-three),
+        0 20px 50px 0 var(--color-four);
+      animation: colorize calc(var(--time-animation) * 3) ease-in-out infinite;
+      opacity: 0.8;
+      z-index: 10;
+      pointer-events: none;
+    }
+
+    .card-loader::before {
+      content: "";
+      position: absolute;
+      top: 0;
       left: 0;
-      right: 0;
-      height: 30px;
-      background: linear-gradient(transparent, var(--surface-2));
+      width: 100px;
+      height: 100px;
+      border-radius: 50%;
+      border-top: solid 1px var(--color-one);
+      border-bottom: solid 1px var(--color-two);
+      background: linear-gradient(180deg, var(--color-five), var(--color-four));
+      box-shadow:
+        inset 0 10px 10px 0 var(--color-three),
+        inset 0 -10px 10px 0 var(--color-four);
     }
 
-    /* ── Footer ────────────────────────────────── */
-    footer {
-      text-align: center;
-      padding: 2rem 0;
-      color: var(--text-muted);
-      font-size: 0.8rem;
+    .card-loader .box {
+      width: 100px;
+      height: 100px;
+      background: linear-gradient(
+        180deg,
+        var(--color-one) 30%,
+        var(--color-two) 70%
+      );
+      -webkit-mask: var(--mask-url);
+      mask: var(--mask-url);
     }
 
-    footer a { color: var(--accent); text-decoration: none; }
-    footer a:hover { text-decoration: underline; }
+    .card-loader svg {
+      position: absolute;
+      width: 100px;
+      height: 100px;
+      top: 0;
+      left: 0;
+    }
 
-    /* ── Responsive ────────────────────────────── */
-    @media (max-width: 600px) {
-      .form-row { flex-direction: column; }
-      .trust-section { flex-direction: column; text-align: center; }
-      .trust-factors { grid-template-columns: 1fr; }
+    .card-loader svg .clipping-mask {
+      filter: contrast(15);
+      animation: roundness calc(var(--time-animation) / 2) linear infinite;
+    }
+
+    .card-loader svg .clipping-mask polygon {
+      filter: blur(7px);
+    }
+
+    .card-loader svg .clipping-mask polygon:nth-child(1) {
+      transform-origin: 75% 25%;
+      transform: rotate(90deg);
+    }
+
+    .card-loader svg .clipping-mask polygon:nth-child(2) {
+      transform-origin: 50% 50%;
+      animation: rotation var(--time-animation) linear infinite reverse;
+    }
+
+    .card-loader svg .clipping-mask polygon:nth-child(3) {
+      transform-origin: 50% 60%;
+      animation: rotation var(--time-animation) linear infinite;
+      animation-delay: calc(var(--time-animation) / -3);
+    }
+
+    .card-loader svg .clipping-mask polygon:nth-child(4) {
+      transform-origin: 40% 40%;
+      animation: rotation var(--time-animation) linear infinite reverse;
+    }
+
+    .card-loader svg .clipping-mask polygon:nth-child(5) {
+      transform-origin: 40% 40%;
+      animation: rotation var(--time-animation) linear infinite reverse;
+      animation-delay: calc(var(--time-animation) / -2);
+    }
+
+    .card-loader svg .clipping-mask polygon:nth-child(6) {
+      transform-origin: 60% 40%;
+      animation: rotation var(--time-animation) linear infinite;
+    }
+
+    .card-loader svg .clipping-mask polygon:nth-child(7) {
+      transform-origin: 60% 40%;
+      animation: rotation var(--time-animation) linear infinite;
+      animation-delay: calc(var(--time-animation) / -1.5);
+    }
+
+    @keyframes rotation {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    @keyframes roundness {
+      0%, 100% { filter: contrast(15); }
+      20%, 40% { filter: contrast(3); }
+      60% { filter: contrast(15); }
+    }
+
+    @keyframes colorize {
+      0%, 100% { filter: hue-rotate(0deg); }
+      20% { filter: hue-rotate(-30deg); }
+      40% { filter: hue-rotate(-60deg); }
+      60% { filter: hue-rotate(-90deg); }
+      80% { filter: hue-rotate(-45deg); }
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      html {
+        scroll-behavior: auto;
+      }
+
+      *,
+      *::before,
+      *::after {
+        animation: none !important;
+        transition: none !important;
+      }
+
+      .reveal {
+        opacity: 1 !important;
+        transform: none !important;
+      }
+    }
+
+    @media (max-width: 1080px) {
+      .hero,
+      .demo-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .process-track-shell {
+        padding: 14px 8px 8px;
+      }
+
+      .process-controls {
+        right: 10px;
+      }
+
+      .process-rail {
+        left: 24px;
+        right: 88px;
+        top: 28px;
+      }
+
+      .process-steps {
+        grid-auto-columns: minmax(260px, 86%);
+        padding: 52px 82px 16px 8px;
+      }
+
+      .metrics-grid,
+      .source-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .scrape-doc-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 760px) {
+      .shell {
+        width: min(calc(100% - 16px), var(--content));
+      }
+
+      .topbar,
+      .section-head,
+      .footer {
+        display: grid;
+      }
+
+      .nav {
+        justify-content: flex-start;
+      }
+
+      .hero-copy,
+      .hero-board,
+      .section-card,
+      .demo-card,
+      .result-card,
+      .source-card,
+      .step-card,
+      .metric-card {
+        padding: 18px;
+      }
+
+      .hero-copy h1 {
+        max-width: 100%;
+        font-size: clamp(2.5rem, 12vw, 3.5rem);
+      }
+
+      .metrics-grid,
+      .source-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .score-shell,
+      .form-grid,
+      .breakdown-row {
+        grid-template-columns: 1fr;
+      }
+
+      .process-steps {
+        grid-auto-columns: minmax(240px, 90%);
+        padding: 52px 74px 16px 6px;
+      }
+
+      .process-controls {
+        right: 8px;
+      }
+
+      .process-control {
+        width: 44px;
+        height: 44px;
+        font-size: 1.2rem;
+      }
+
+      .process-rail {
+        left: 18px;
+        right: 74px;
+        top: 26px;
+      }
+
+      .breakdown-row .value {
+        text-align: left;
+      }
+
+      .score-ring {
+        width: 148px;
+      }
+
+      .footer {
+        justify-content: start;
+      }
+
+      .footer-links {
+        grid-template-columns: 1fr;
+      }
     }
   </style>
 </head>
 <body>
-  <div class="container">
-    <header>
-      <h1>Provenance</h1>
-      <p>Paste any blog, YouTube, or PubMed URL — get an explainable trust score.</p>
-      <div class="nav-links">
-        <a href="/docs">API Docs</a>
-        <a href="/summary">Dataset Summary</a>
-        <a href="/sources">Sample Sources</a>
+  <div class="shell">
+    <header class="topbar glass reveal" style="--reveal-delay: 0ms;">
+      <div class="brand">
+        <div class="brand-mark">P</div>
+        <div class="brand-copy">
+          <strong>Provenance</strong>
+          <span>Live trust scoring for blogs, YouTube, and PubMed</span>
+        </div>
       </div>
+      <nav class="nav" aria-label="Page sections">
+        <a class="nav-link" href="#overview">Overview</a>
+        <a class="nav-link" href="#routes">Routes</a>
+        <a class="nav-link" href="#sources">Sources</a>
+        <a class="nav-link" href="#system">System</a>
+        <a class="nav-link" href="#method">Method</a>
+        <a class="nav-link" href="#demo">Live demo</a>
+      </nav>
     </header>
 
-    <form class="scrape-form" id="scrapeForm">
-      <div style="margin-bottom: 1rem;">
-        <select id="sampleSelect" style="width: 100%; padding: 0.7rem; border-radius: 8px; border: 1px solid var(--border); background: var(--surface-2); color: var(--text-muted); outline: none; font-size: 0.9rem;">
-          <option value="">-- Or select a pre-configured sample source --</option>
-          <option value="blog|https://www.health.harvard.edu/blog/gut-feelings-how-food-affects-your-mood-2018120715548">Harvard Health: Gut feelings (Blog)</option>
-          <option value="blog|https://www.healthline.com/nutrition/gut-microbiome-and-health">Healthline: Gut microbiome (Blog)</option>
-          <option value="blog|https://www.mindbodygreen.com/articles/signs-of-an-unhealthy-gut">MindBodyGreen: 10 Signs (Blog)</option>
-          <option value="youtube|https://www.youtube.com/watch?v=VzPD009qTN4">Kurzgesagt: How Bacteria Rule Over Your Body (YouTube)</option>
-          <option value="youtube|https://www.youtube.com/watch?v=B9RruLkAUm8">Erika Ebbel: Your Gut Microbiome (YouTube)</option>
-          <option value="pubmed|https://pubmed.ncbi.nlm.nih.gov/31315227/">Nature: Gut Microbiome, Diet and Disease (PubMed)</option>
-        </select>
-      </div>
-
-      <div class="form-row">
-        <input type="url" id="urlInput" placeholder="https://example.com/article" required>
-        <select id="sourceType">
-          <option value="blog">Blog</option>
-          <option value="youtube">YouTube</option>
-          <option value="pubmed">PubMed</option>
-        </select>
-      </div>
-      <button type="submit" class="btn-scrape" id="submitBtn">Analyze Trust</button>
-    </form>
-
-    <div class="spinner" id="spinner">Scraping and scoring…</div>
-    <div class="error-panel" id="errorPanel"></div>
-
-    <div class="result" id="resultPanel">
-      <div class="result-header">
-        <h2 id="resTitle"></h2>
-        <div class="result-meta">
-          <span data-label="Author: " id="resAuthor"></span>
-          <span data-label="Date: " id="resDate"></span>
-          <span data-label="Language: " id="resLang"></span>
-          <span data-label="Source: " id="resType"></span>
+    <section id="overview" class="hero">
+      <div class="hero-copy glass reveal" style="--reveal-delay: 40ms;">
+        <div class="eyebrow">Trust dashboard / live pipeline</div>
+        <h1>Make the source readable before you trust it.</h1>
+        <p>
+          Provenance pulls content from three source types, normalizes the result, scores trust with visible factors,
+          and keeps the evidence attached so the output can be validated instead of guessed.
+        </p>
+        <div class="hero-actions">
+          <a class="btn btn-primary" href="#demo">Run a live scrape</a>
+          <a class="btn" href="#system">See the pipeline</a>
+        </div>
+        <div class="hero-chips">
+          <span class="hero-chip"><span id="heroSources">--</span> seeded sources</span>
+          <span class="hero-chip">1 live scrape endpoint</span>
+          <span class="hero-chip">4 explainable trust factors</span>
         </div>
       </div>
+    </section>
 
-      <div class="trust-section">
-        <div class="trust-badge" id="trustBadge"></div>
-        <div class="trust-details">
-          <p id="resReason"></p>
-          <div class="trust-factors" id="trustFactors"></div>
+    <section id="routes" class="reveal" style="padding: 64px 0 10px; --reveal-delay: 100ms;">
+      <div class="section-head" style="margin-bottom: 24px;">
+        <div>
+          <h2>API Routes</h2>
+          <p>The backend endpoints powering this dashboard.</p>
         </div>
       </div>
+      <div style="display: grid; gap: 14px; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));">
+        <a href="/docs" class="step-card" style="padding: 16px; border-radius: 18px; display: block; text-decoration: none;">
+          <div class="step-kicker">Swagger UI</div>
+          <h3 style="margin-top: 8px; font-size: 1.1rem; color: var(--text);">/docs</h3>
+          <p style="margin-top: 6px; font-size: 0.86rem; color: var(--muted);">Explore all endpoints via interactive API documentation.</p>
+        </a>
+        <a href="/health" class="step-card" style="padding: 16px; border-radius: 18px; display: block; text-decoration: none;">
+          <div class="step-kicker">Status</div>
+          <h3 style="margin-top: 8px; font-size: 1.1rem; color: var(--text);">/health</h3>
+          <p style="margin-top: 6px; font-size: 0.86rem; color: var(--muted);">Server health check and basic system info.</p>
+        </a>
+        <a href="/summary" class="step-card" style="padding: 16px; border-radius: 18px; display: block; text-decoration: none;">
+          <div class="step-kicker">Metadata</div>
+          <h3 style="margin-top: 8px; font-size: 1.1rem; color: var(--text);">/summary</h3>
+          <p style="margin-top: 6px; font-size: 0.86rem; color: var(--muted);">High-level aggregation of scraped data summary.</p>
+        </a>
+        <a href="/sources" class="step-card" style="padding: 16px; border-radius: 18px; display: block; text-decoration: none;">
+          <div class="step-kicker">Data GET</div>
+          <h3 style="margin-top: 8px; font-size: 1.1rem; color: var(--text);">/sources</h3>
+          <p style="margin-top: 6px; font-size: 0.86rem; color: var(--muted);">Paginated list of all scraped source documents.</p>
+        </a>
+        <a href="#demo" class="step-card" style="padding: 16px; border-radius: 18px; display: block; text-decoration: none;">
+          <div class="step-kicker">Action POST</div>
+          <h3 style="margin-top: 8px; font-size: 1.1rem; color: var(--text);">/scrape</h3>
+          <p style="margin-top: 6px; font-size: 0.86rem; color: var(--muted);">Live scrape pipeline for standard URLs.</p>
+        </a>
+      </div>
+    </section>
 
-      <div class="tags-section" id="tagsSection"></div>
+    <!-- Removed Source board per request -->
 
-      <div class="flags-section">
-        <h3>Risk Flags</h3>
-        <div id="flagsContainer"></div>
+    <section id="system" class="section">
+      <div class="section-head">
+        <div>
+          <h2>How the system works</h2>
+        </div>
+        <p>Use the arrow controls to move through each connected stage. The stage panel updates in sync so you can track what changed and why.</p>
+      </div>
+      <div class="process-section">
+        <div class="process-track-shell glass reveal" style="--reveal-delay: 60ms;">
+          <div class="process-controls" aria-label="Pipeline navigation controls">
+            <button class="process-control" id="processPrev" type="button" aria-label="Previous pipeline step">&#8592;</button>
+            <button class="process-control" id="processNext" type="button" aria-label="Next pipeline step">&#8594;</button>
+          </div>
+          <div class="process-rail" aria-hidden="true"><span id="processRailProgress"></span></div>
+          <div class="process-steps" id="processTrack">
+            <article class="step-card process-step active" data-step="0">
+              <span class="step-kicker">Step 01 / collect</span>
+              <h3>Grab the source with the right tool</h3>
+              <p>Blogs, YouTube, and PubMed each need different fetch logic. The system starts by keeping source-specific metadata intact.</p>
+              <div class="step-chips">
+                <span class="tag">URL</span>
+                <span class="tag">Metadata</span>
+                <span class="tag">Transcript / abstract</span>
+              </div>
+            </article>
+            <article class="step-card process-step" data-step="1">
+              <span class="step-kicker">Step 02 / normalize</span>
+              <h3>Turn messy fields into one clean record</h3>
+              <p>Noise gets removed, language gets detected, tags get attached, and the output becomes comparable across source families.</p>
+              <div class="step-chips">
+                <span class="tag">Cleaning</span>
+                <span class="tag">Language</span>
+                <span class="tag">Chunks</span>
+              </div>
+            </article>
+            <article class="step-card process-step" data-step="2">
+              <span class="step-kicker">Step 03 / score</span>
+              <h3>Score trust with visible reasons</h3>
+              <p>Each score is computed from explicit factors, so every confidence claim is traceable to evidence.</p>
+              <div class="step-chips">
+                <span class="tag">Author</span>
+                <span class="tag">Recency</span>
+                <span class="tag">Citations</span>
+              </div>
+            </article>
+            <article class="step-card process-step" data-step="3">
+              <span class="step-kicker">Step 04 / deliver</span>
+              <h3>Keep the result evidence-backed</h3>
+              <p>The final record includes the score, factor breakdown, flags, and content chunks so every claim has a clear audit trail.</p>
+              <div class="step-chips">
+                <span class="tag">Breakdown</span>
+                <span class="tag">Flags</span>
+                <span class="tag">Chunks</span>
+              </div>
+            </article>
+          </div>
+        </div>
+
+        <aside class="process-stage glass reveal" id="processStage" style="--reveal-delay: 120ms;">
+        </aside>
+      </div>
+    </section>
+
+    <section id="method" class="section">
+      <div class="section-head">
+        <div>
+          <h2>How scraping works in practice</h2>
+        </div>
+        <p>This is the exact method used for each source type, including fallbacks when metadata or transcripts are missing.</p>
       </div>
 
-      <div class="chunks-section">
-        <h3>Content Chunks (preview)</h3>
-        <div id="chunksContainer"></div>
-      </div>
-    </div>
+      <div class="scrape-doc-grid">
+        <article class="scrape-doc-card glass reveal" style="--reveal-delay: 0ms;">
+          <div class="card-loader" style="--color-one: #8de1c4; --color-two: #4b8b74; --color-three: rgba(141, 225, 196, 0.5); --color-four: rgba(75, 139, 116, 0.5); --color-five: rgba(141, 225, 196, 0.25);">
+            <svg width="100" height="100" viewBox="0 0 100 100">
+              <defs>
+                <mask id="clipping-1" class="clipping-mask">
+                  <polygon points="0,0 100,0 100,100 0,100" fill="black"></polygon>
+                  <polygon points="25,25 75,25 50,75" fill="white"></polygon>
+                  <polygon points="50,25 75,75 25,75" fill="white"></polygon>
+                  <polygon points="35,35 65,35 50,65" fill="white"></polygon>
+                  <polygon points="35,35 65,35 50,65" fill="white"></polygon>
+                  <polygon points="35,35 65,35 50,65" fill="white"></polygon>
+                  <polygon points="35,35 65,35 50,65" fill="white"></polygon>
+                </mask>
+              </defs>
+            </svg>
+            <div class="box" style="--mask-url: url(#clipping-1);"></div>
+          </div>
+          <div class="eyebrow">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+            Blog pipeline
+          </div>
+          <h3>Requests + BeautifulSoup, with JS fallback path</h3>
+          <ul class="scrape-list">
+            <li><span class="step-badge step-badge-blue">1</span> Fetch HTML via HTTP GET with standard browser headers and a 15s timeout.</li>
+            <li><span class="step-badge step-badge-blue">2</span> Parse metadata (title, author, publish date) looking at OpenGraph tags, JSON-LD structured data, and common CSS class patterns like <code>.author</code> or <code>.byline</code>.</li>
+            <li><span class="step-badge step-badge-blue">3</span> Extract the main body text by prioritizing <code>&lt;article&gt;</code>, <code>&lt;main&gt;</code>, or <code>#content</code> tags, falling back to all <code>&lt;p&gt;</code> tags if necessary. Strip out navs, ads, and footers.</li>
+            <li><span class="step-badge step-badge-blue">4</span> Count visible citations by scanning the text for DOIs, PubMed IDs, or standard bracketed reference markers like <code>[1]</code>.</li>
+          </ul>
+        </article>
 
-    <footer>
-      Built for the Data Scraping &amp; Trust Scoring assignment &middot;
-      <a href="/docs">API Documentation</a>
+        <article class="scrape-doc-card glass reveal" style="--reveal-delay: 60ms;">
+          <div class="card-loader" style="--color-one: #ff6b6b; --color-two: #c92a2a; --color-three: rgba(255, 107, 107, 0.5); --color-four: rgba(201, 42, 42, 0.5); --color-five: rgba(255, 107, 107, 0.25);">
+            <svg width="100" height="100" viewBox="0 0 100 100">
+              <defs>
+                <mask id="clipping-2" class="clipping-mask">
+                  <polygon points="0,0 100,0 100,100 0,100" fill="black"></polygon>
+                  <polygon points="25,25 75,25 50,75" fill="white"></polygon>
+                  <polygon points="50,25 75,75 25,75" fill="white"></polygon>
+                  <polygon points="35,35 65,35 50,65" fill="white"></polygon>
+                  <polygon points="35,35 65,35 50,65" fill="white"></polygon>
+                  <polygon points="35,35 65,35 50,65" fill="white"></polygon>
+                  <polygon points="35,35 65,35 50,65" fill="white"></polygon>
+                </mask>
+              </defs>
+            </svg>
+            <div class="box" style="--mask-url: url(#clipping-2);"></div>
+          </div>
+          <div class="eyebrow">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22.54 6.42a2.78 2.78 0 0 0-1.94-2C18.88 4 12 4 12 4s-6.88 0-8.6.46a2.78 2.78 0 0 0-1.94 2A29 29 0 0 0 1 11.75a29 29 0 0 0 .46 5.33 2.78 2.78 0 0 0 1.94 2c1.72.46 8.6.46 8.6.46s6.88 0 8.6-.46a2.78 2.78 0 0 0 1.94-2 29 29 0 0 0 .46-5.33 29 29 0 0 0-.46-5.33z"/><polygon points="9.75 15.02 15.5 11.75 9.75 8.48 9.75 15.02"/></svg>
+            YouTube pipeline
+          </div>
+          <h3>oEmbed + page metadata + transcript recovery</h3>
+          <ul class="scrape-list">
+            <li><span class="step-badge">1</span> Extract the unique Video ID from the provided URL (handles standard <code>youtube.com/watch</code> and shortened <code>youtu.be</code> formats).</li>
+            <li><span class="step-badge">2</span> Use the official YouTube oEmbed API to fetch the video title and channel name without requiring a developer API key.</li>
+            <li><span class="step-badge">3</span> Attempt to fetch the video transcript using the <code>youtube-transcript-api</code> to get the actual spoken words as the primary content payload.</li>
+            <li><span class="step-badge">4</span> If the transcript is private or missing, gracefully fall back to parsing the raw video description text and apply a <code>transcript_unavailable</code> risk flag.</li>
+          </ul>
+        </article>
+
+        <article class="scrape-doc-card glass reveal" style="--reveal-delay: 120ms;">
+          <div class="card-loader" style="--color-one: #7bBFFF; --color-two: #3b82f6; --color-three: rgba(123, 191, 255, 0.5); --color-four: rgba(59, 130, 246, 0.5); --color-five: rgba(123, 191, 255, 0.25);">
+            <svg width="100" height="100" viewBox="0 0 100 100">
+              <defs>
+                <mask id="clipping-3" class="clipping-mask">
+                  <polygon points="0,0 100,0 100,100 0,100" fill="black"></polygon>
+                  <polygon points="25,25 75,25 50,75" fill="white"></polygon>
+                  <polygon points="50,25 75,75 25,75" fill="white"></polygon>
+                  <polygon points="35,35 65,35 50,65" fill="white"></polygon>
+                  <polygon points="35,35 65,35 50,65" fill="white"></polygon>
+                  <polygon points="35,35 65,35 50,65" fill="white"></polygon>
+                  <polygon points="35,35 65,35 50,65" fill="white"></polygon>
+                </mask>
+              </defs>
+            </svg>
+            <div class="box" style="--mask-url: url(#clipping-3);"></div>
+          </div>
+          <div class="eyebrow">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+            PubMed pipeline
+          </div>
+          <h3>Entrez XML first, HTML fallback second</h3>
+          <ul class="scrape-list">
+            <li><span class="step-badge">1</span> Parse the PMID (PubMed ID) directly from the URL.</li>
+            <li><span class="step-badge">2</span> Use Biopython's Entrez E-utilities to hit the NCBI database. This returns structured, completely clean XML instead of messy HTML.</li>
+            <li><span class="step-badge">3</span> Extract the title, author list, journal name, publication date, and full abstract directly from the XML tree.</li>
+            <li><span class="step-badge">4</span> If the Entrez API is down or rate-limited, fall back to a traditional BeautifulSoup HTML scrape of the PubMed web page to ensure the pipeline doesn't break.</li>
+          </ul>
+        </article>
+
+        <article class="scrape-doc-card glass reveal" style="--reveal-delay: 180ms;">
+          <div class="card-loader" style="--color-one: #ffbf48; --color-two: #be4a1d; --color-three: rgba(255, 191, 72, 0.5); --color-four: rgba(190, 74, 29, 0.5); --color-five: rgba(255, 191, 72, 0.25);">
+            <svg width="100" height="100" viewBox="0 0 100 100">
+              <defs>
+                <mask id="clipping-4" class="clipping-mask">
+                  <polygon points="0,0 100,0 100,100 0,100" fill="black"></polygon>
+                  <polygon points="25,25 75,25 50,75" fill="white"></polygon>
+                  <polygon points="50,25 75,75 25,75" fill="white"></polygon>
+                  <polygon points="35,35 65,35 50,65" fill="white"></polygon>
+                  <polygon points="35,35 65,35 50,65" fill="white"></polygon>
+                  <polygon points="35,35 65,35 50,65" fill="white"></polygon>
+                  <polygon points="35,35 65,35 50,65" fill="white"></polygon>
+                </mask>
+              </defs>
+            </svg>
+            <div class="box" style="--mask-url: url(#clipping-4);"></div>
+          </div>
+          <div class="eyebrow">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><path d="M22 4L12 14.01l-3-3"/></svg>
+            Unified scoring pipeline
+          </div>
+          <h3>One normalized schema for all source types</h3>
+          <ul class="scrape-list">
+            <li><span class="step-badge step-badge-blue"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg></span> Raw text is cleaned, language-detected, topic-tagged, and chunked before scoring.</li>
+            <li><span class="step-badge step-badge-blue"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg></span> Trust score is computed from explicit factors: author credibility, citations, domain authority, recency, and disclaimers.</li>
+            <li><span class="step-badge step-badge-blue"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg></span> The API returns score + factor reasons + penalties + risk flags so every confidence claim remains auditable.</li>
+          </ul>
+        </article>
+      </div>
+    </section>
+
+    <section id="demo" class="section">
+      <div class="section-head">
+        <div>
+          <h2>Live scrape demo</h2>
+        </div>
+        <p>Paste a URL, pick a source type, and the page will render the response with score, reasons, flags, and chunks.</p>
+      </div>
+
+      <div class="demo-grid">
+        <article class="demo-card glass reveal" style="--reveal-delay: 40ms;">
+          <div class="eyebrow">Try it live</div>
+          <h2>One input. One trust score. No hidden guesswork.</h2>
+          <p>
+            The interface is designed to feel like a tool, not a landing page. The form stays simple, the output stays readable,
+            and the result keeps its evidence attached.
+          </p>
+          <div class="demo-points">
+            <div class="demo-point">
+              <strong>Visible scoring</strong>
+              <span>The score comes with a breakdown and a short reason.</span>
+            </div>
+            <div class="demo-point">
+              <strong>Source-specific fetches</strong>
+              <span>The scraper changes based on whether the input is a blog, video, or paper.</span>
+            </div>
+            <div class="demo-point">
+              <strong>Evidence-backed output</strong>
+              <span>Flags, factor reasons, and chunks are kept with the response so the rationale is always visible.</span>
+            </div>
+          </div>
+        </article>
+
+        <div class="result-card glass reveal" style="--reveal-delay: 80ms;">
+          <form id="scrapeForm" class="form-grid" autocomplete="off">
+            <div class="field" style="grid-column: 1 / -1;">
+              <label for="urlInput">Source URL</label>
+              <input id="urlInput" type="url" placeholder="https://example.com/article" required>
+            </div>
+            <div class="field" style="grid-column: 1 / -1;">
+              <label for="existingSourceSelect">Optional: use existing dataset source</label>
+              <select id="existingSourceSelect">
+                <option value="">Select a source from the current dataset</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="sourceType">Source type</label>
+              <select id="sourceType">
+                <option value="blog">Blog</option>
+                <option value="youtube">YouTube</option>
+                <option value="pubmed">PubMed</option>
+              </select>
+            </div>
+            <button id="submitBtn" class="submit-btn" type="submit">Run live scrape</button>
+          </form>
+
+          <div id="statusRow" class="status-row" aria-live="polite">
+            <div style="display:flex; align-items:center; gap:10px;">
+              <div class="spinner" aria-hidden="true"></div>
+              <span>Scraping, cleaning, tagging, and scoring…</span>
+            </div>
+            <span>Live request</span>
+          </div>
+          <div id="errorPanel" class="error-panel" role="alert"></div>
+
+          <div class="result-meta" id="resultMeta"></div>
+          <h3 id="resultTitle" class="result-title">Waiting for input</h3>
+          <p id="resultIntro" class="result-summary">Submit a URL to see the score, the breakdown, and the evidence behind it.</p>
+
+          <div class="score-shell">
+            <div style="display: flex; gap: 16px; align-items: center;">
+              <div class="grade-badge" id="gradeBadge">-</div>
+            </div>
+            <div>
+              <h4 id="scoreHeadline" style="font-size: 1.2rem; letter-spacing: -0.05em; margin-bottom: 8px;">No result yet</h4>
+              <p id="scoreReason" style="color: var(--muted); font-size: 0.9rem;">The score explanation will show up here after the scrape completes.</p>
+              <div style="margin-top: 12px; display: flex; align-items: center; gap: 8px;">
+                <strong id="scoreValue" style="color: var(--text); font-family: var(--mono); font-size: 1.1rem;">--</strong>
+                <span style="font-size: 0.85rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em;">Trust Score</span>
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <div class="eyebrow" style="margin-bottom: 12px;">Breakdown</div>
+            <div id="breakdownList" class="breakdown-grid"></div>
+          </div>
+
+          <div>
+            <div class="eyebrow" style="margin-bottom: 12px;">Flags</div>
+            <div id="flagList" class="flag-row"></div>
+          </div>
+
+          <div>
+            <div class="eyebrow" style="margin-bottom: 12px;">Chunks</div>
+            <div id="chunkList" class="chunk-list"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <footer class="footer glass reveal" style="--reveal-delay: 120ms;">
+      <span>Built as a readable trust dashboard, not a generic AI landing page.</span>
+      <div class="footer-links">
+        <a href="#demo">Try live scrape</a>
+        <a href="/docs">Swagger docs</a>
+        <a href="/sources">Sample JSON</a>
+      </div>
     </footer>
   </div>
 
   <script>
-    const form = document.getElementById('scrapeForm');
-    const urlInput = document.getElementById('urlInput');
-    const sourceType = document.getElementById('sourceType');
-    const submitBtn = document.getElementById('submitBtn');
-    const spinner = document.getElementById('spinner');
-    const errorPanel = document.getElementById('errorPanel');
-    const resultPanel = document.getElementById('resultPanel');
+    const processSteps = [
+      {
+        title: "Collect the source with the right tool",
+        kicker: "Step 01 / collect",
+        summary: "Source-specific scrapers keep the original structure intact so the rest of the pipeline gets trustworthy input.",
+        pass: "01",
+        panels: [
+          {
+            title: "What gets captured",
+            text: "The URL, page metadata, transcript or abstract, and any obvious source-specific clues that help identify the content.",
+          },
+          {
+            title: "Why it matters",
+            text: "If the fetch is wrong, every later signal is weaker. This step is about landing the right material in the first place.",
+          },
+        ],
+        points: [
+          "Blog pages stay in HTML form with author and date intact.",
+          "YouTube pages provide transcript-aware extraction when available.",
+          "PubMed keeps journal cues and abstract data together.",
+        ],
+      },
+      {
+        title: "Normalize the mess into one clean record",
+        kicker: "Step 02 / normalize",
+        summary: "Noise gets removed, language gets detected, tags get attached, and the output becomes comparable across source families.",
+        pass: "02",
+        panels: [
+          {
+            title: "What gets cleaned",
+            text: "Boilerplate, repeated fragments, formatting junk, and source quirks that would otherwise distract from the content.",
+          },
+          {
+            title: "What gets added",
+            text: "Language, topic tags, content chunks, and stable identifiers that make the record easier to inspect.",
+          },
+        ],
+        points: [
+          "One schema for all three source families.",
+          "Chunked text for downstream retrieval and verification.",
+          "Cleaned output that still preserves the evidence.",
+        ],
+      },
+      {
+        title: "Score trust with visible reasons",
+        kicker: "Step 03 / score",
+        summary: "Each result is scored from explicit factors so confidence levels are traceable to concrete evidence.",
+        pass: "03",
+        panels: [
+          {
+            title: "What gets weighted",
+            text: "Author quality, citation signals, source class, recency, and disclaimer presence each contribute to the score.",
+          },
+          {
+            title: "What gets penalized",
+            text: "Suspicious authors, outdated claims, promotional wording, and missing citations reduce confidence when present.",
+          },
+        ],
+        points: [
+          "Trust is a number with a reason string attached.",
+          "Flags make the weak spots obvious.",
+          "The output is built for inspection, not just display.",
+        ],
+      },
+      {
+        title: "Deliver a result grounded in evidence",
+        kicker: "Step 04 / deliver",
+        summary: "The final response keeps score, factor-level reasons, flags, and chunks together so each claim remains auditable.",
+        pass: "04",
+        panels: [
+          {
+            title: "What gets returned",
+            text: "The live scrape response plus the seeded sample data both show the same scoring path and fields.",
+          },
+          {
+            title: "Why it matters",
+            text: "When data and scoring rationale are presented side by side, credibility can be evaluated with evidence rather than presentation style.",
+          },
+        ],
+        points: [
+          "Summary endpoints stay fast and deterministic.",
+          "Live scrapes prove the pipeline is not pre-rendered.",
+          "The page now behaves like a product, not a slideshow.",
+        ],
+      },
+    ];
 
-    const sampleSelect = document.getElementById('sampleSelect');
+    const scrapeForm = document.getElementById("scrapeForm");
+    const urlInput = document.getElementById("urlInput");
+    const existingSourceSelect = document.getElementById("existingSourceSelect");
+    const sourceTypeInput = document.getElementById("sourceType");
+    const submitBtn = document.getElementById("submitBtn");
+    const statusRow = document.getElementById("statusRow");
+    const errorPanel = document.getElementById("errorPanel");
+    const sourceGrid = document.getElementById("sourceGrid");
+    const resultMeta = document.getElementById("resultMeta");
+    const resultTitle = document.getElementById("resultTitle");
+    const resultIntro = document.getElementById("resultIntro");
+    const scoreRing = document.getElementById("scoreRing");
+    const scoreValue = document.getElementById("scoreValue");
+    const scoreHeadline = document.getElementById("scoreHeadline");
+    const scoreReason = document.getElementById("scoreReason");
+    const breakdownList = document.getElementById("breakdownList");
+    const flagList = document.getElementById("flagList");
+    const chunkList = document.getElementById("chunkList");
+    const processStage = document.getElementById("processStage");
+    const processTrack = document.getElementById("processTrack");
+    const processRailProgress = document.getElementById("processRailProgress");
+    const processPrev = document.getElementById("processPrev");
+    const processNext = document.getElementById("processNext");
+    const processStepCards = processTrack
+      ? [...processTrack.querySelectorAll(".process-step")]
+      : [];
+    let cachedSources = [];
 
-    sampleSelect.addEventListener('change', (e) => {
-      if (!e.target.value) {
-        urlInput.value = '';
+    const ESCAPE_MAP = {
+      "&": "&amp;",
+      "<": "&lt;",
+      ">": "&gt;",
+      '"': "&quot;",
+      "'": "&#39;",
+    };
+
+    function escapeHtml(value) {
+      return String(value ?? "").replace(/[&<>"']/g, (char) => ESCAPE_MAP[char]);
+    }
+
+    function toTitleCase(value) {
+      return String(value ?? "")
+        .split(/[_\s-]+/)
+        .filter(Boolean)
+        .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+        .join(" ");
+    }
+
+    function formatScore(value) {
+      return Number(value || 0).toFixed(2);
+    }
+
+    function formatDate(value) {
+      if (!value) return "Date unavailable";
+      const parsed = new Date(value);
+      if (Number.isNaN(parsed.getTime())) {
+        return value;
+      }
+      return parsed.toLocaleDateString(undefined, {
+        year: "numeric",
+        month: "short",
+        day: "numeric",
+      });
+    }
+
+    function firstSentence(text, fallback) {
+      const normalized = String(text || "").trim();
+      if (!normalized) return fallback;
+      const match = normalized.match(/(.+?[.!?])(?:\s|$)/);
+      return match ? match[1] : normalized;
+    }
+
+    function getGradeRank(score) {
+      if (score >= 0.8) return { letter: 'A', color: 'var(--accent)' };
+      if (score >= 0.6) return { letter: 'B', color: '#8de1c4' }; // lighter green
+      if (score >= 0.4) return { letter: 'C', color: '#ffcc00' }; // yellow
+      if (score >= 0.2) return { letter: 'D', color: '#ffb347' }; // orange
+      return { letter: 'F', color: '#ff4d4d' }; // red
+    }
+
+    function scoreTone(score) {
+      if (score >= 0.8) return "Excellent confidence signal";
+      if (score >= 0.6) return "Good confidence signal";
+      if (score >= 0.4) return "Mixed confidence signal";
+      if (score >= 0.2) return "Poor confidence signal";
+      return "Critical warning: Untrusted";
+    }
+
+    function breakdownTone(score) {
+      if (score >= 0.7) {
+        return {
+          level: "good",
+          label: "What\'s correct",
+          fallbackReason: "Strong evidence supports this factor.",
+        };
+      }
+      if (score >= 0.4) {
+        return {
+          level: "mixed",
+          label: "What to verify",
+          fallbackReason: "This signal is mixed and needs a second look.",
+        };
+      }
+      return {
+        level: "bad",
+        label: "What\'s the problem",
+        fallbackReason: "This factor weakens trust and needs attention.",
+      };
+    }
+
+    function mountReveals(root = document) {
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add("visible");
+            observer.unobserve(entry.target);
+          }
+        });
+      }, { threshold: 0.16 });
+
+      root.querySelectorAll(".reveal").forEach((element) => observer.observe(element));
+    }
+
+    function renderProcessStage(index) {
+      const safeIndex = Math.max(0, Math.min(processSteps.length - 1, Number(index) || 0));
+      const step = processSteps[safeIndex];
+      if (!step || !processStage) return;
+
+      processStepCards.forEach((card, cardIndex) => {
+        card.classList.toggle("active", cardIndex === safeIndex);
+      });
+
+      if (processRailProgress) {
+        const progressPercent = processSteps.length > 1
+          ? (safeIndex / (processSteps.length - 1)) * 100
+          : 0;
+        processRailProgress.style.width = `${progressPercent}%`;
+      }
+
+      if (processPrev) {
+        processPrev.disabled = safeIndex <= 0;
+      }
+
+      if (processNext) {
+        processNext.disabled = safeIndex >= processSteps.length - 1;
+      }
+
+      processStage.innerHTML = `
+        <div class="stage-top">
+          <div>
+            <div class="eyebrow">${escapeHtml(step.kicker)}</div>
+            <h3>${escapeHtml(step.title)}</h3>
+            <p>${escapeHtml(step.summary)}</p>
+          </div>
+          <div class="stage-pass">
+            <span>Pipeline pass</span>
+            <strong>${escapeHtml(step.pass)}</strong>
+          </div>
+        </div>
+        <div class="stage-body">
+          ${step.panels.map((panel) => `
+            <div class="stage-panel">
+              <h4>${escapeHtml(panel.title)}</h4>
+              <p>${escapeHtml(panel.text)}</p>
+            </div>
+          `).join("")}
+          <div class="stage-panel">
+            <h4>What this stage makes visible</h4>
+            <div class="stage-points">
+              ${step.points.map((point) => `<div class="stage-point">${escapeHtml(point)}</div>`).join("")}
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    function renderMetrics(summary) {
+      const setTextById = (id, value) => {
+        const element = document.getElementById(id);
+        if (element) {
+          element.textContent = value;
+        }
+      };
+
+      const totalSources = summary?.total_sources ?? 0;
+      const bySourceType = summary?.by_source_type || {};
+      const byLanguage = summary?.by_language || {};
+      const topTags = summary?.top_tags || [];
+      const trustRanking = summary?.trust_ranking || [];
+
+      setTextById("heroSources", totalSources || "--");
+      setTextById("metricSources", totalSources || "--");
+      setTextById("metricLanguages", Object.keys(byLanguage).length || "--");
+      setTextById("metricTopTags", topTags.slice(0, 2).map((item) => item.tag).join(", ") || "--");
+
+      const topType = Object.entries(bySourceType).sort((a, b) => Number(b[1]) - Number(a[1]))[0];
+      setTextById("metricTopType", topType ? toTitleCase(topType[0]) : "--");
+
+      const topScore = trustRanking.length ? formatScore(trustRanking[0].trust_score) : "--";
+      setTextById("heroScore", topScore);
+
+      setTextById("heroLangCount", Object.keys(byLanguage).length || "--");
+      setTextById("heroSplitHint", topType ? `${toTitleCase(topType[0])} leads` : "No split yet");
+      setTextById("heroTagHint", topTags.slice(0, 2).map((item) => item.tag).join(", ") || "No tags");
+
+      const sourceEntries = Object.entries(bySourceType);
+      const sourcePercent = sourceEntries.length
+        ? Math.max(20, Math.round((Number(sourceEntries[0][1]) / totalSources) * 100))
+        : 20;
+      const splitBar = document.getElementById("splitBar");
+      if (splitBar) {
+        splitBar.style.width = `${sourcePercent}%`;
+      }
+
+      const langPercent = Math.max(25, Math.min(92, Object.keys(byLanguage).length * 24));
+      const langBar = document.getElementById("langBar");
+      if (langBar) {
+        langBar.style.width = `${langPercent}%`;
+      }
+
+      const tagPercent = Math.max(25, Math.min(92, topTags.length * 18));
+      const tagBar = document.getElementById("tagBar");
+      if (tagBar) {
+        tagBar.style.width = `${tagPercent}%`;
+      }
+
+      renderProcessStage(0);
+    }
+
+    function populateExistingSourceSelect(sources) {
+      if (!existingSourceSelect) return;
+
+      cachedSources = Array.isArray(sources) ? sources : [];
+      const options = cachedSources.map((source) => `
+        <option value="${escapeHtml(source.source_id || "")}">
+          ${escapeHtml(`[${toTitleCase(source.source_type)}] ${source.title || source.source_url || "Untitled"}`)}
+        </option>
+      `).join("");
+
+      existingSourceSelect.innerHTML = `
+        <option value="">Select a source from the current dataset</option>
+        ${options}
+      `;
+    }
+
+    function renderSources(sources) {
+      const sourceGrid = document.getElementById("sourceGrid");
+      if (!sourceGrid) return;
+
+      const sorted = [...(sources || [])].sort((a, b) => Number(b.trust_score || 0) - Number(a.trust_score || 0));
+      const visibleSources = sorted.slice(0, 6);
+
+      sourceGrid.innerHTML = visibleSources.map((source, index) => `
+        <article class="source-card glass reveal" style="--reveal-delay:${index * 60}ms;">
+          <div class="source-top">
+            <span class="pill">${escapeHtml(toTitleCase(source.source_type))}</span>
+            <span class="pill">${escapeHtml(formatScore(source.trust_score))}</span>
+          </div>
+          <div>
+            <h3>${escapeHtml(source.title || "Untitled source")}</h3>
+            <p>${escapeHtml(firstSentence(source.scoring_reason, "Explainable score output with diagnostics."))}</p>
+          </div>
+          <div class="source-meta">
+            <span class="tag">${escapeHtml(source.author || "Unknown author")}</span>
+            <span class="tag">${escapeHtml(formatDate(source.published_date || ""))}</span>
+            <span class="tag">${escapeHtml(String(source.language || "en").toUpperCase())}</span>
+            <span class="tag">${escapeHtml(source.region || "US")}</span>
+          </div>
+          <div class="source-meta">
+            ${(source.topic_tags || []).slice(0, 3).map((tag) => `<span class="tag">${escapeHtml(toTitleCase(tag))}</span>`).join("")}
+          </div>
+        </article>
+      `).join("") || '<article class="source-card glass"><p>No sample data loaded.</p></article>';
+
+      mountReveals(sourceGrid);
+    }
+
+    function renderBreakdown(documentData) {
+      const breakdown = documentData.trust_breakdown || {};
+      const entries = Object.entries(breakdown).filter(([key]) => key !== "penalties");
+
+      if (!entries.length) {
+        breakdownList.innerHTML = `
+          <div class="breakdown-row breakdown-row--mixed">
+            <div class="breakdown-main">
+              <div class="breakdown-head">
+                <strong>No breakdown data returned</strong>
+                <span class="breakdown-state breakdown-state--mixed">What to verify</span>
+              </div>
+              <div class="track breakdown-track">
+                <span class="breakdown-fill breakdown-fill--mixed" style="width:20%"></span>
+              </div>
+              <p class="breakdown-reason">Run another scrape or inspect the source payload for missing factor details.</p>
+            </div>
+            <div class="value">--</div>
+          </div>
+        `;
         return;
       }
-      const [type, url] = e.target.value.split('|');
-      urlInput.value = url;
-      sourceType.value = type;
-    });
 
-    form.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const url = urlInput.value.trim();
-      if (!url) return;
+      breakdownList.innerHTML = entries.map(([key, value], index) => {
+        const score = typeof value === "object" && value !== null ? Number(value.score ?? 0) : Number(value ?? 0);
+        const reason = typeof value === "object" && value !== null ? String(value.reason || "").trim() : "";
+        const tone = breakdownTone(score);
+        const widthPercent = Math.max(8, Math.min(100, Math.round(score * 100)));
 
-      // Reset
-      resultPanel.classList.remove('active');
-      errorPanel.classList.remove('active');
-      spinner.classList.add('active');
-      submitBtn.disabled = true;
-      submitBtn.textContent = 'Analyzing…';
+        return `
+          <div class="breakdown-row breakdown-row--${tone.level} reveal" style="--reveal-delay:${index * 50}ms;">
+            <div class="breakdown-main">
+              <div class="breakdown-head">
+                <strong>${escapeHtml(toTitleCase(key))}</strong>
+                <span class="breakdown-state breakdown-state--${tone.level}">${escapeHtml(tone.label)}</span>
+              </div>
+              <div class="track breakdown-track">
+                <span class="breakdown-fill breakdown-fill--${tone.level}" style="width:${widthPercent}%"></span>
+              </div>
+              <p class="breakdown-reason">${escapeHtml(reason || tone.fallbackReason)}</p>
+            </div>
+            <div class="value">${escapeHtml(formatScore(score))}</div>
+          </div>
+        `;
+      }).join("");
 
-      try {
-        const resp = await fetch('/scrape', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ url, source_type: sourceType.value }),
+      mountReveals(breakdownList);
+    }
+
+    function renderFlags(documentData) {
+      const flags = documentData.risk_flags || [];
+      flagList.innerHTML = flags.length
+        ? flags.map((flag) => `<span class="flag">${escapeHtml(toTitleCase(flag))}</span>`).join("")
+        : '<span class="flag good">No risk flags detected</span>';
+    }
+
+    function renderChunks(documentData) {
+      const chunks = (documentData.content_chunks || []).slice(0, 3);
+      chunkList.innerHTML = chunks.length
+        ? chunks.map((chunk, index) => `
+          <article class="chunk reveal" style="--reveal-delay:${index * 60}ms;">
+            <strong>Chunk ${index + 1}</strong>
+            <p>${escapeHtml(chunk)}</p>
+          </article>
+        `).join("")
+        : '<article class="chunk"><strong>No chunks available</strong><p>The result did not include chunked text.</p></article>';
+
+      mountReveals(chunkList);
+    }
+
+    function renderResult(documentData) {
+      const score = Number(documentData.trust_score || 0);
+
+      resultMeta.innerHTML = `
+        <span class="meta-pill">${escapeHtml(toTitleCase(documentData.source_type))}</span>
+        <span class="meta-pill">${escapeHtml(documentData.author || "Unknown author")}</span>
+        <span class="meta-pill">${escapeHtml(formatDate(documentData.published_date || ""))}</span>
+        <span class="meta-pill">${escapeHtml(String(documentData.language || "en").toUpperCase())}</span>
+        <span class="meta-pill">${escapeHtml(documentData.region || "US")}</span>
+      `;
+
+      resultTitle.textContent = documentData.title || "Untitled source";
+      resultIntro.textContent = firstSentence(
+        documentData.description || documentData.raw_text || "",
+        "No description available."
+      );
+      scoreValue.textContent = formatScore(score);
+      scoreHeadline.textContent = scoreTone(score);
+      scoreReason.textContent = documentData.scoring_reason || "No reason returned.";
+      
+      const grade = getGradeRank(score);
+      const gradeBadge = document.getElementById("gradeBadge");
+      if (gradeBadge) {
+        gradeBadge.textContent = grade.letter;
+        gradeBadge.style.color = grade.color;
+        gradeBadge.style.borderColor = grade.color;
+        gradeBadge.style.boxShadow = `inset 0 2px 10px rgba(0,0,0,0.2), 0 0 15px ${grade.color}30`;
+      }
+
+      renderBreakdown(documentData);
+      renderFlags(documentData);
+      renderChunks(documentData);
+    }
+
+    function bindProcessScroll() {
+      if (!processTrack || !processStepCards.length) return;
+
+      let frameQueued = false;
+      let isProgrammaticScroll = false;
+      let scrollTimeout;
+
+      const syncFromCenter = () => {
+        frameQueued = false;
+        const trackRect = processTrack.getBoundingClientRect();
+        const centerX = trackRect.left + trackRect.width / 2;
+
+        let activeIndex = 0;
+        let closestDistance = Number.POSITIVE_INFINITY;
+
+        processStepCards.forEach((card, index) => {
+          const rect = card.getBoundingClientRect();
+          const cardCenter = rect.left + rect.width / 2;
+          const distance = Math.abs(cardCenter - centerX);
+
+          if (distance < closestDistance) {
+            closestDistance = distance;
+            activeIndex = index;
+          }
         });
 
-        const data = await resp.json();
+        renderProcessStage(activeIndex);
+      };
 
-        if (!resp.ok) {
-          throw new Error(data.detail || data.error || `HTTP ${resp.status}`);
+      const getActiveStepIndex = () => {
+        const activeIndex = processStepCards.findIndex((card) => card.classList.contains("active"));
+        return activeIndex === -1 ? 0 : activeIndex;
+      };
+
+      const scrollToStep = (targetIndex) => {
+        const boundedIndex = Math.max(0, Math.min(processStepCards.length - 1, targetIndex));
+        const targetCard = processStepCards[boundedIndex];
+        if (!targetCard) return;
+
+        isProgrammaticScroll = true;
+        clearTimeout(scrollTimeout);
+        scrollTimeout = setTimeout(() => { isProgrammaticScroll = false; }, 800);
+
+        targetCard.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "center" });
+        renderProcessStage(boundedIndex);
+      };
+
+      processTrack.addEventListener("scroll", () => {
+        if (isProgrammaticScroll || frameQueued) return;
+        frameQueued = true;
+        requestAnimationFrame(syncFromCenter);
+      }, { passive: true });
+
+      if (processPrev) {
+        processPrev.addEventListener("click", () => {
+          scrollToStep(getActiveStepIndex() - 1);
+        });
+      }
+
+      if (processNext) {
+        processNext.addEventListener("click", () => {
+          scrollToStep(getActiveStepIndex() + 1);
+        });
+      }
+
+      processStepCards.forEach((card, index) => {
+        card.addEventListener("click", () => {
+          scrollToStep(index);
+        });
+      });
+
+      window.addEventListener("resize", () => {
+        requestAnimationFrame(syncFromCenter);
+      });
+
+      requestAnimationFrame(syncFromCenter);
+    }
+
+    async function loadDashboardData() {
+      try {
+        const [summaryResponse, sourcesResponse] = await Promise.all([
+          fetch("/summary"),
+          fetch("/sources"),
+        ]);
+
+        if (summaryResponse.ok) {
+          const summary = await summaryResponse.json();
+          renderMetrics(summary);
+        } else {
+          document.getElementById("metricSources").textContent = "--";
         }
 
-        renderResult(data);
-      } catch (err) {
-        errorPanel.textContent = `Error: ${err.message}`;
-        errorPanel.classList.add('active');
+        if (sourcesResponse.ok) {
+          const payload = await sourcesResponse.json();
+          const sources = payload.sources || [];
+          renderSources(sources);
+          populateExistingSourceSelect(sources);
+        } else {
+          sourceGrid.innerHTML = '<article class="source-card glass"><p>Sample data unavailable.</p></article>';
+        }
+      } catch (error) {
+        sourceGrid.innerHTML = '<article class="source-card glass"><p>Could not load the dashboard data.</p></article>';
+      }
+    }
+
+    if (existingSourceSelect) {
+      existingSourceSelect.addEventListener("change", () => {
+        const selectedId = existingSourceSelect.value;
+        const selectedSource = cachedSources.find((source) => source.source_id === selectedId);
+
+        if (!selectedSource) {
+          return;
+        }
+
+        urlInput.value = selectedSource.source_url || "";
+        sourceTypeInput.value = selectedSource.source_type || sourceTypeInput.value;
+        renderResult(selectedSource);
+      });
+    }
+
+    scrapeForm.addEventListener("submit", async (event) => {
+      event.preventDefault();
+
+      const url = urlInput.value.trim();
+      const sourceType = sourceTypeInput.value;
+
+      errorPanel.classList.remove("active");
+      errorPanel.textContent = "";
+      statusRow.classList.add("active");
+      submitBtn.disabled = true;
+      submitBtn.textContent = "Running...";
+
+      try {
+        const response = await fetch("/scrape", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ url, source_type: sourceType }),
+        });
+
+        const payload = await response.json();
+
+        if (!response.ok) {
+          throw new Error(payload.detail || payload.error || `Request failed with status ${response.status}`);
+        }
+
+        renderResult(payload);
+        document.getElementById("demo").scrollIntoView({ behavior: "smooth", block: "start" });
+      } catch (error) {
+        errorPanel.textContent = error.message || "Unexpected scrape error.";
+        errorPanel.classList.add("active");
       } finally {
-        spinner.classList.remove('active');
+        statusRow.classList.remove("active");
         submitBtn.disabled = false;
-        submitBtn.textContent = 'Analyze Trust';
+        submitBtn.textContent = "Run live scrape";
       }
     });
 
-    function renderResult(d) {
-      document.getElementById('resTitle').textContent = d.title || 'Untitled';
-      document.getElementById('resAuthor').textContent = d.author || 'Unknown';
-      document.getElementById('resDate').textContent = d.published_date || 'N/A';
-      document.getElementById('resLang').textContent = (d.language || 'en').toUpperCase();
-      document.getElementById('resType').textContent = d.source_type;
-
-      // Trust badge
-      const badge = document.getElementById('trustBadge');
-      const score = d.trust_score;
-      badge.textContent = score.toFixed(2);
-      badge.className = 'trust-badge ' + (score >= 0.65 ? 'high' : score >= 0.4 ? 'mid' : 'low');
-
-      // Reason
-      document.getElementById('resReason').textContent = d.scoring_reason || '';
-
-      // Breakdown
-      const factors = document.getElementById('trustFactors');
-      const bd = d.trust_breakdown || {};
-      factors.innerHTML = Object.entries(bd).map(([k, v]) =>
-        `<span>${k.replace(/_/g, ' ')}: <strong>${v.toFixed(2)}</strong></span>`
-      ).join('');
-
-      // Tags
-      const tagsSection = document.getElementById('tagsSection');
-      tagsSection.innerHTML = (d.topic_tags || []).map(t =>
-        `<span class="tag">${t.replace(/_/g, ' ')}</span>`
-      ).join('');
-
-      // Flags
-      const flagsContainer = document.getElementById('flagsContainer');
-      const flags = d.risk_flags || [];
-      flagsContainer.innerHTML = flags.length
-        ? flags.map(f => `<span class="flag">${f}</span>`).join('')
-        : '<span class="no-flags">✓ No risk flags detected</span>';
-
-      // Chunks (show first 3)
-      const chunksContainer = document.getElementById('chunksContainer');
-      const chunks = (d.content_chunks || []).slice(0, 3);
-      chunksContainer.innerHTML = chunks.map(c =>
-        `<div class="chunk">${c.substring(0, 300)}${c.length > 300 ? '…' : ''}</div>`
-      ).join('') || '<p style="color:var(--text-muted);font-size:0.85rem">No content chunks available.</p>';
-
-      resultPanel.classList.add('active');
-    }
+    renderProcessStage(0);
+    bindProcessScroll();
+    mountReveals();
+    loadDashboardData();
   </script>
 </body>
 </html>

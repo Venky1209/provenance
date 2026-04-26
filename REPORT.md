@@ -1,125 +1,44 @@
-# Technical Report: Provenance — Data Scraping & Trust Scoring System
+# Technical Report: Provenance
 
 ## 1. Scraping Strategy
+The system implements a source-specific scraper pattern inheriting from a `BaseScraper`, prioritizing deployment speed and resilience.
 
-### Multi-Source Architecture
-
-The system uses a **source-specific scraper pattern** where each content type (blog, YouTube, PubMed) has a dedicated scraper class inheriting from a shared `BaseScraper`. This design was chosen over a generic crawler because each source has fundamentally different content structures:
-
-- **Blogs** are scraped via HTTP GET with BeautifulSoup4 and lxml. Content extraction follows a priority chain: `<article>` → `<main>` → `#content` → `<body>`. Metadata is extracted from OpenGraph tags, structured data, and common CSS class patterns (`.author`, `.byline`). Navigation, ads, and footer noise are stripped using regex patterns.
-
-- **YouTube** uses a dual approach: the oEmbed API for lightweight title/channel metadata (no API key required), and the `youtube-transcript-api` library for transcript retrieval. When transcripts are unavailable (private captions, music videos), the system degrades gracefully — returning the video description as fallback text and flagging `transcript_unavailable` as a risk flag.
-
-- **PubMed** uses Biopython's Entrez E-utilities to fetch structured XML directly from NCBI. This returns clean, pre-structured data (authors, journal, abstract, dates) without HTML parsing heuristics. A fallback HTML scraper exists for resilience if the Entrez API is unreachable.
-
-### Content Processing Pipeline
-
-After scraping, every source goes through an identical pipeline:
-
-1. **Cleaning** — HTML tag stripping, entity decoding, boilerplate removal (footers, CTAs, cookie banners)
-2. **Language Detection** — langdetect with graceful fallback to English for short texts
-3. **Topic Tagging** — deterministic keyword frequency analysis across 9 health/science topic categories
-4. **Chunking** — word-boundary-aware splitting with configurable size (500 words) and overlap (50 words)
-5. **Trust Scoring** — weighted multi-factor scoring with abuse detection
-
-This pipeline produces a normalized `ScrapedDocument` regardless of source type, ensuring consistent downstream behavior.
-
----
+- **Blogs**: Uses `requests` and `BeautifulSoup4` with heuristic extraction chains (e.g., `<article>` → `<main>` → `#content`). Metadata is extracted via OpenGraph tags.
+- **YouTube**: Uses the oEmbed API for video metadata and `youtube-transcript-api` for raw captions, avoiding brittle DOM scraping of the YouTube player.
+- **PubMed**: Avoids HTML parsing entirely by using Biopython's Entrez E-utilities to fetch structured XML directly from the NCBI database. 
 
 ## 2. Topic Tagging Method
+Topic tagging uses **deterministic keyword frequency analysis** rather than ML classification. This ensures the system runs without external API dependencies and provides perfectly auditable results. 
 
-Topic tagging uses a **keyword frequency approach** rather than ML-based classification. This was a deliberate choice:
-
-- **No external API dependencies** — works offline and in constrained deployment environments
-- **Deterministic** — same input always produces same tags
-- **Transparent** — the keyword lists are human-readable and auditable
-
-The system maintains 9 topic categories (gut_health, nutrition, inflammation, mental_health, medicine, research, wellness, exercise, technology), each with 8-15 seed keywords. Scoring counts keyword hits per category and returns the top 5 by frequency.
-
-**Limitation:** This approach favors explicit keyword usage. Content that discusses gut health conceptually without using specific terms may receive weaker tags. An embedding-based classifier would improve recall but adds model dependencies.
-
----
+The taxonomy includes health, science, technology, business, and society categories. Text chunks are tokenized, normalized, and scored against topic dictionaries. The system returns up to 5 topics sorted by hit density. While this favors explicit keyword usage over semantic nuance, it guarantees predictable explainability.
 
 ## 3. Trust Score Algorithm
+The 0.0-1.0 trust score is explainable, deterministic, and grounded in E-E-A-T principles. It avoids black-box weighting.
 
-### Design Philosophy
+**Base Formula (Weighted Sum):**
+- **Author Credibility (30%)**: Institutional (0.95), MD/PhD (0.85), Multiple (0.9), Anonymous (0.15).
+- **Citation Count (20%)**: Regex detection of DOIs, PMIDs, or standard academic references, capped at 20.
+- **Domain Authority (20%)**: Tiered rubric (.gov/pubmed = 1.0, Mayo Clinic = 0.85, Healthline = 0.65).
+- **Recency (20%)**: Time decay (<1yr = 0.95, 2-5yrs = 0.55).
+- **Medical Disclaimer (10%)**: Positive signal for "not medical advice" patterns.
 
-The trust score is designed to be **explainable, not just accurate**. Every score is accompanied by a `trust_breakdown` (per-factor scores), `risk_flags` (detected problems), and a `scoring_reason` (human-readable explanation). This transparency is the system's primary differentiator.
-
-### Formula
-
-```
-trust_score = 0.30 × author_credibility
-            + 0.20 × citation_count
-            + 0.20 × domain_authority
-            + 0.20 × recency
-            + 0.10 × medical_disclaimer_presence
-            - penalty(abuse_flags)
-```
-
-### Factor Scoring
-
-| Factor | Approach |
-|--------|----------|
-| **Author Credibility** | Named credentials (MD, PhD) → 0.85; multiple authors → 0.9; institutional → 0.95; anonymous → 0.15 |
-| **Citation Count** | Regex-detected references ([1], DOI links, "et al."); capped at 20 to prevent citation stuffing |
-| **Domain Authority** | Tiered rubric: pubmed/nih.gov/edu → 1.0; Mayo Clinic/Harvard → 0.85; Healthline → 0.65; generic → 0.3 |
-| **Recency** | <1 year → 0.95; 1-2 years → 0.8; 2-5 years → 0.55; >5 years → 0.25 with `outdated_medical_content` flag |
-| **Medical Disclaimer** | Regex detection of "not medical advice" / "consult your doctor" patterns; small positive signal only |
-
-### Abuse Prevention
-
-The system actively detects manipulation through pattern matching:
-
-- **SEO spam** — "buy now", "limited offer", "miracle cure" → `seo_spam_pattern` flag + 0.08 score penalty
-- **Promotional language** — affiliate/discount patterns → `promotional_language` flag
-- **Aggressive health claims** — "cures cancer", "guaranteed weight loss" → `aggressive_health_claims` flag
-- **Missing attribution** — no author or date → respective flags with degraded factor scores
-
-Each abuse flag incurs a 0.08 penalty from the raw weighted score, ensuring manipulative content is systematically downranked.
-
----
+**Abuse Prevention Logic:**
+The pipeline actively detects manipulation and applies strict scoring rules to prevent abuse:
+- **Fake Authors**: The system cross-checks author names against known organizational markers and credential keywords (MD, PhD). Generic handles or suspicious names (e.g. "admin") incur a `suspicious_author` penalty and low credibility scores.
+- **SEO Spam Blogs**: Domains with low or unknown authority are heavily penalized. The system uses a tiered rubric, granting high authority to `.gov`, `.edu`, and known medical repositories, while assigning minimal weight to standard blogs or unrecognized domains. It also scans for SEO spam patterns (e.g., "buy now", "miracle cure") and applies a `-0.20` hard penalty.
+- **Misleading Medical Content**: The text is scanned for standard medical disclaimers ("not medical advice", "for informational purposes"). A lack of a disclaimer penalizes the score, reducing the overall trust rating for the content.
+- **Outdated Information**: Medical and scientific information decays rapidly. A strong recency penalty is applied based on a time-decay formula: content older than 5 years receives a significant penalty, while immediate/recent publications retain high scores.
 
 ## 4. Edge Case Handling
 
-| Scenario | Handling |
-|----------|----------|
-| Author not available | Score defaults to 0.15 (not zero); `missing_author` flag |
-| Publish date missing | Recency defaults to 0.35; `missing_date` flag |
-| Transcript unavailable | Returns 200 with description as fallback; `transcript_unavailable` flag |
-| Multiple authors | Treated as strong signal (0.9); common in academic papers |
-| Non-English content | Auto-detected via langdetect; `non_english` flag |
-| Long articles | Word-based chunking with overlap prevents information loss |
-| Citation stuffing | Citation contribution capped at 20 references |
-| Scraper timeout | Returns structured 504 error with source_type context |
+The system was designed to robustly handle the following scenarios:
 
----
-
-## 5. System Design: Ingestion + Evaluation
-
-This system is intentionally designed as an **ingestion and evaluation pipeline**, not just a scraper. The scraping layer collects raw content; the pipeline layer transforms it into a normalized, scored, and explainable record.
-
-The API layer has two operational modes:
-- **Static dataset endpoints** (`/sources`, `/summary`) serve pre-generated data for fast, predictable review
-- **Live scrape endpoint** (`POST /scrape`) demonstrates the pipeline works in real-time on arbitrary URLs
-
-This split ensures reviewers see both reliable sample data and live functionality.
-
----
-
-## 6. Limitations & Production Next Steps
-
-**Current limitations:**
-- No JavaScript rendering (SPA blogs may return incomplete content)
-- Domain authority uses a static rubric, not live SEO metrics
-- Single-threaded scraping (sequential, not parallel)
-- No persistent storage for live scrape results
-- No rate limiting on the API
-
-**Production hardening would include:**
-- Playwright/crawl4ai integration for JS-rendered pages
-- Redis caching for repeat URL requests
-- Background task queue (Celery) for async scraping
-- API key authentication and rate limiting
-- Scheduled re-scraping with change detection
-- Database storage with deduplication
+| Edge Case | System Handling |
+|-----------|-----------------|
+| **Missing Metadata (Author)** | Score defaults to a baseline low weight (0.15); emits `missing_author` flag. |
+| **Missing Metadata (Date)** | Recency defaults to a low baseline (0.35); emits `missing_date` flag. |
+| **Missing Metadata (Transcript)** | Degrades gracefully by falling back to scraping the video description; emits `transcript_unavailable` flag. |
+| **Multiple Authors** | Detects multiple names (journal-style) and applies an average/high credibility score (0.75). |
+| **Non-English Content** | Auto-detected via `langdetect`; emits `non_english` penalty flag and normalizes the language field. |
+| **Long Articles** | Ensured via `chunking.py`: word-based chunking (500 words with 50-word overlap) splits long texts so processing and tagging work reliably. |
+| **Citation Stuffing** | Citation contribution to the score is strictly capped at a maximum of 20 references to prevent gaming the metric. |

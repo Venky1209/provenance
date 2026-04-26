@@ -6,10 +6,14 @@ While Phase 1 successfully proves that the ingestion, cleaning, and trust-scorin
 
 The most impactful next step would be moving from a "URL Evaluation" tool to a "Topic Discovery" engine.
 
-- **Topic-based URL discovery** via DuckDuckGo (for blogs/YouTube) and NCBI Entrez (for PubMed)
+- **Discovery engine (search APIs to auto-fetch sources)**
+- **Keyword-based filtering for ingestion**
+- **Large-scale ingestion (batch scraping)**
+- **External domain authority APIs (e.g., Moz, Ahrefs)**
+- **Improved citation detection using NLP**
+- **Async scraping for performance scaling**
 - **`POST /discover` endpoint**: Accepts `{ topic: "Probiotics", blogs: 3, youtube: 2, pubmed: 1 }`
 - **Persistent append-only dataset** with a historical view
-- **Async bulk pipeline** with concurrency controls
 
 ### Why it wasn't built yet (Scope Boundary)
 

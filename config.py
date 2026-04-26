@@ -22,34 +22,33 @@ APP_DESCRIPTION = (
     "their reliability with a weighted, transparent scoring algorithm."
 )
 
-# ── Source URLs ───────────────────────────────────────────────────
-# Selected for clear trust-score spread:
-#   - Blog 1: Harvard Health (institutional, high trust)
-#   - Blog 2: Healthline (mainstream publisher, mid trust)
-#   - Blog 3: MindBodyGreen (commercial wellness, lower trust)
-#   - YouTube 1: Kurzgesagt (credible science explainer)
-#   - YouTube 2: Thomas DeLauer (creator-style health content)
-#   - PubMed 1: Recent gut microbiome paper
+# Selected for a diverse spread of non-medical generic topics:
+#   - Blog 1: MIT Tech Review (high trust tech publisher)
+#   - Blog 2: The Verge (mainstream tech news)
+#   - Blog 3: Medium / Towards Data Science (community/expert blog)
+#   - YouTube 1: 3Blue1Brown (highly credible educational channel)
+#   - YouTube 2: Marques Brownlee (mainstream tech reviewer)
+#   - PubMed 1: Foundational CRISPR paper (Doudna/Charpentier 2012)
 
 SOURCES = {
     "blogs": [
-        "https://www.health.harvard.edu/blog/gut-feelings-how-food-affects-your-mood-2018120715548",
-        "https://www.healthline.com/nutrition/gut-microbiome-and-health",
-        "https://www.mindbodygreen.com/articles/signs-of-an-unhealthy-gut",
+        "https://lilianweng.github.io/posts/2023-06-23-agent/",
+        "https://bair.berkeley.edu/blog/2023/04/03/koala/",
+        "https://huggingface.co/blog/llm-leaderboard",
     ],
     "youtube": [
-        "https://www.youtube.com/watch?v=VzPD009qTN4",
-        "https://www.youtube.com/watch?v=B9RruLkAUm8",
+        "https://www.youtube.com/watch?v=aircAruvnKk", # 3Blue1Brown - What is a Neural Network?
+        "https://www.youtube.com/watch?v=jZ952vChhuI", # MKBHD - Auto Focus explanation
     ],
     "pubmed": [
-        "https://pubmed.ncbi.nlm.nih.gov/31315227/",
+        "https://pubmed.ncbi.nlm.nih.gov/22810696/", # A programmable dual-RNA-guided DNA endonuclease in adaptive bacterial immunity
     ],
 }
 
 # ── Paths ─────────────────────────────────────────────────────────
 _BASE = os.path.dirname(os.path.abspath(__file__))
 OUTPUT_DIR = os.path.join(_BASE, "output")
-SAMPLE_OUTPUT_PATH = os.path.join(OUTPUT_DIR, "sample_output.json")
+SAMPLE_OUTPUT_PATH = os.path.join(OUTPUT_DIR, "scraped_data.json")
 SUMMARY_PATH = os.path.join(OUTPUT_DIR, "summary.json")
 
 # Assignment-required separate files

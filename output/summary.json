@@ -10,61 +10,77 @@
   },
   "top_tags": [
     {
-      "tag": "gut_health",
-      "count": 6
-    },
-    {
-      "tag": "nutrition",
-      "count": 6
-    },
-    {
-      "tag": "mental_health",
-      "count": 6
-    },
-    {
-      "tag": "medicine",
-      "count": 4
-    },
-    {
-      "tag": "inflammation",
-      "count": 4
+      "tag": "technology",
+      "count": 5
     },
     {
       "tag": "research",
-      "count": 4
+      "count": 5
+    },
+    {
+      "tag": "mental_health",
+      "count": 3
+    },
+    {
+      "tag": "science",
+      "count": 2
+    },
+    {
+      "tag": "society",
+      "count": 2
+    },
+    {
+      "tag": "exercise",
+      "count": 2
+    },
+    {
+      "tag": "gut_health",
+      "count": 2
+    },
+    {
+      "tag": "business",
+      "count": 1
+    },
+    {
+      "tag": "wellness",
+      "count": 1
+    },
+    {
+      "tag": "nutrition",
+      "count": 1
     }
   ],
   "trust_ranking": [
     {
-      "source_id": "db9f0e22922f",
-      "title": "Gut Microbiome: Profound Implications for Diet and Disease.",
-      "trust_score": 0.74
+      "source_id": "d60159457337",
+      "title": "LLM Powered Autonomous Agents",
+      "trust_score": 0.57
     },
     {
-      "source_id": "46d69373b1b4",
-      "title": "Gut feelings: How food affects your mood - Harvard Health",
-      "trust_score": 0.53
+      "source_id": "25d039e28d14",
+      "title": "Comprehensive molecular characterization of human colon and rectal cancer.",
+      "trust_score": 0.57
     },
     {
-      "source_id": "54157366721a",
-      "title": "How Does Your Gut Microbiome Affect Your Health?",
-      "trust_score": 0.47
+      "source_id": "ac3a1887ef59",
+      "title": "Koala: A Dialogue Model for Academic Research",
+      "trust_score": 0.49
     },
     {
-      "source_id": "64855c0959f4",
-      "title": "How Bacteria Rule Over Your Body – The Microbiome",
+      "source_id": "7ca8eec98a4f",
+      "title": "Can foundation models label data like humans?",
+      "trust_score": 0.38
+    },
+    {
+      "source_id": "bb98182b41ec",
+      "title": "Quick introduction to Jupyter Notebook",
       "trust_score": 0.35
     },
     {
-      "source_id": "0ec818211435",
-      "title": "10 Signs You Have A Gut Balance Issue + How To Support It",
-      "trust_score": 0.34
-    },
-    {
-      "source_id": "ea783a10c97c",
-      "title": "Your Gut Microbiome: The Most Important Organ You’ve Never Heard Of | Erika Ebbe",
-      "trust_score": 0.27
+      "source_id": "d8fc169f1441",
+      "title": "But what is a neural network? | Deep learning chapter 1",
+      "trust_score": 0.28
     }
   ],
-  "generated_at": "2026-04-25T06:20:45.517173"
+  "generated_at": "2026-04-26T08:16:49.443295"
 }

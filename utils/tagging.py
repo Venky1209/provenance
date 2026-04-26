@@ -47,6 +47,19 @@ TOPIC_KEYWORDS: dict[str, list[str]] = {
     "technology": [
         "AI", "artificial intelligence", "machine learning",
         "algorithm", "data", "software", "app", "digital",
+        "programming", "code", "developer", "computer",
+    ],
+    "science": [
+        "physics", "chemistry", "biology", "astronomy", "scientific",
+        "experiment", "hypothesis", "discovery", "quantum",
+    ],
+    "business": [
+        "market", "economy", "finance", "startup", "company",
+        "investment", "revenue", "profit", "industry", "corporate",
+    ],
+    "society": [
+        "culture", "history", "politics", "government", "social",
+        "community", "public", "policy", "law", "education",
     ],
 }
 

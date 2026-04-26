@@ -21,18 +21,25 @@ class RiskFlag(str, Enum):
     NO_CITATIONS = "no_citations"
     SEO_SPAM_PATTERN = "seo_spam_pattern"
     PROMOTIONAL_LANGUAGE = "promotional_language"
-    AGGRESSIVE_HEALTH_CLAIMS = "aggressive_health_claims"
-    OUTDATED_MEDICAL_CONTENT = "outdated_medical_content"
+    AGGRESSIVE_CLAIMS = "aggressive_claims"
+    OUTDATED_CONTENT = "outdated_content"
     NON_ENGLISH = "non_english"
     TRANSCRIPT_UNAVAILABLE = "transcript_unavailable"
+    SUSPICIOUS_AUTHOR = "suspicious_author"
+
+
+class BreakdownDetail(BaseModel):
+    score: float = Field(ge=0, le=1)
+    reason: str
 
 
 class TrustBreakdown(BaseModel):
-    author_credibility: float = Field(ge=0, le=1)
-    citation_count: float = Field(ge=0, le=1)
-    domain_authority: float = Field(ge=0, le=1)
-    recency: float = Field(ge=0, le=1)
-    medical_disclaimer_presence: float = Field(ge=0, le=1)
+    author_credibility: BreakdownDetail
+    citation_count: BreakdownDetail
+    domain_authority: BreakdownDetail
+    recency: BreakdownDetail
+    disclaimer: BreakdownDetail
+    penalties: list[RiskFlag] = Field(default_factory=list)
 
 
 class ScrapeRequest(BaseModel):
@@ -48,6 +55,8 @@ class ScrapedDocument(BaseModel):
     description: str = ""
     author: str = ""
     published_date: str = ""
+    year: Optional[int] = None
+    month: Optional[int] = None
     language: str = "en"
     region: str = ""
     topic_tags: list[str] = Field(default_factory=list)
@@ -77,6 +86,6 @@ class SummaryResponse(BaseModel):
 
 
 class ErrorResponse(BaseModel):
+    status: str = "failed"
+    url: str
     error: str
-    source_type: Optional[str] = None
-    detail: Optional[str] = None

@@ -1,6 +1,6 @@
 """Dataset loading helpers for the API layer.
 
-Loads the pre-generated sample_output.json and summary.json at startup
+Loads the pre-generated scraped_data.json and summary.json at startup
 so static endpoints are fast and predictable.
 """
 
@@ -16,7 +16,7 @@ _cache: dict[str, Any] = {}
 
 
 def load_sample_data() -> list[dict]:
-    """Load sample_output.json into memory. Cached after first call."""
+    """Load scraped_data.json into memory. Cached after first call."""
     if "samples" not in _cache:
         if os.path.exists(SAMPLE_OUTPUT_PATH):
             with open(SAMPLE_OUTPUT_PATH, "r", encoding="utf-8") as f:

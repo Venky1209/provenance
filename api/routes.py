@@ -13,8 +13,10 @@ from fastapi.responses import JSONResponse
 
 from api.dataset import load_sample_data, load_summary, get_source_by_id, is_data_loaded
 from models import ScrapeRequest, ScrapedDocument, SourceType, RiskFlag
-from scrapers import BlogScraper, YouTubeScraper, PubMedScraper, ScraperError
-from pipeline import chunk_text, extract_tags, compute_trust_score
+from scraper import BlogScraper, YouTubeScraper, PubMedScraper, ScraperError
+from scoring.trust_score import compute_trust_score
+from utils.chunking import chunk_text
+from utils.tagging import extract_tags
 from utils import clean, detect_language, generate_source_id
 from config import APP_VERSION
 
@@ -90,73 +92,71 @@ def scrape_url(request: ScrapeRequest):
 
     try:
         raw = scraper.scrape(url)
-    except ScraperError as exc:
-        if "Timeout" in str(exc):
-            return JSONResponse(
-                status_code=504,
-                content={
-                    "error": "Scraper timeout",
-                    "source_type": request.source_type.value,
-                    "detail": str(exc),
-                },
-            )
+    except Exception as exc:
         return JSONResponse(
             status_code=422,
             content={
-                "error": "Scraping failed",
-                "source_type": request.source_type.value,
-                "detail": str(exc),
+                "status": "failed",
+                "url": url,
+                "error": str(exc)
             },
+        )
+
+    try:
+        raw_text = raw.get("raw_text", "")
+        cleaned = clean(raw_text)
+        language = detect_language(cleaned)
+        tags = extract_tags(cleaned)
+        chunks = chunk_text(cleaned)
+
+        from utils.date_parser import parse_date
+        year, month = parse_date(raw.get("published_date", ""))
+
+        score, breakdown, flags, reason = compute_trust_score(
+            url=url,
+            source_type=request.source_type.value,
+            author=raw.get("author", ""),
+            published_date=raw.get("published_date", ""),
+            raw_text=cleaned,
+            citations_count=raw.get("citations_count", 0),
+            language=language,
+        )
+
+        # YouTube transcript flag
+        if (request.source_type == SourceType.YOUTUBE
+                and not raw.get("transcript_available", True)):
+            if RiskFlag.TRANSCRIPT_UNAVAILABLE not in flags:
+                flags.append(RiskFlag.TRANSCRIPT_UNAVAILABLE)
+                breakdown.penalties.append(RiskFlag.TRANSCRIPT_UNAVAILABLE)
+
+        return ScrapedDocument(
+            source_id=generate_source_id(url),
+            source_url=url,
+            source_type=request.source_type,
+            title=raw.get("title", ""),
+            description=raw.get("description", ""),
+            author=raw.get("author", ""),
+            published_date=raw.get("published_date", ""),
+            year=year,
+            month=month,
+            language=language,
+            region=raw.get("region", ""),
+            topic_tags=tags,
+            trust_score=score,
+            content_chunks=chunks,
+            raw_text=cleaned[:2000],
+            journal=raw.get("journal", ""),
+            citations_count=raw.get("citations_count", 0),
+            trust_breakdown=breakdown,
+            risk_flags=flags,
+            scoring_reason=reason,
         )
     except Exception as exc:
         return JSONResponse(
-            status_code=500,
+            status_code=422,
             content={
-                "error": "Unexpected scraper error",
-                "source_type": request.source_type.value,
-                "detail": str(exc),
+                "status": "failed",
+                "url": url,
+                "error": f"Pipeline failed: {str(exc)}"
             },
         )
-
-    raw_text = raw.get("raw_text", "")
-    cleaned = clean(raw_text)
-    language = detect_language(cleaned)
-    tags = extract_tags(cleaned)
-    chunks = chunk_text(cleaned)
-
-    score, breakdown, flags, reason = compute_trust_score(
-        url=url,
-        source_type=request.source_type.value,
-        author=raw.get("author", ""),
-        published_date=raw.get("published_date", ""),
-        raw_text=cleaned,
-        citations_count=raw.get("citations_count", 0),
-        language=language,
-    )
-
-    # YouTube transcript flag
-    if (request.source_type == SourceType.YOUTUBE
-            and not raw.get("transcript_available", True)):
-        if RiskFlag.TRANSCRIPT_UNAVAILABLE not in flags:
-            flags.append(RiskFlag.TRANSCRIPT_UNAVAILABLE)
-
-    return ScrapedDocument(
-        source_id=generate_source_id(url),
-        source_url=url,
-        source_type=request.source_type,
-        title=raw.get("title", ""),
-        description=raw.get("description", ""),
-        author=raw.get("author", ""),
-        published_date=raw.get("published_date", ""),
-        language=language,
-        region=raw.get("region", ""),
-        topic_tags=tags,
-        trust_score=score,
-        content_chunks=chunks,
-        raw_text=cleaned[:2000],
-        journal=raw.get("journal", ""),
-        citations_count=raw.get("citations_count", 0),
-        trust_breakdown=breakdown,
-        risk_flags=flags,
-        scoring_reason=reason,
-    )

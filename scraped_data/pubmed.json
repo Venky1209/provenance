@@ -1,21 +1,58 @@
 [
   {
-    "source_url": "https://pubmed.ncbi.nlm.nih.gov/31315227/",
+    "source_id": "25d039e28d14",
+    "source_url": "https://pubmed.ncbi.nlm.nih.gov/22810696/",
     "source_type": "pubmed",
-    "author": "Ronald D Hills, Benjamin A Pontefract, Hillary R Mishcon, Cody A Black, Steven C Sutton, Cory R Theberge",
-    "published_date": "2019-Jul-16",
+    "title": "Comprehensive molecular characterization of human colon and rectal cancer.",
+    "description": "To characterize somatic alterations in colorectal carcinoma, we conducted a genome-scale analysis of 276 samples, analysing exome sequence, DNA copy number, promoter methylation and messenger RNA and microRNA expression. A subset of these samples (97) underwent low-depth-of-coverage whole-genome seq",
+    "author": "Cancer Genome Atlas Network",
+    "published_date": "2012-Jul-18",
+    "year": null,
+    "month": null,
     "language": "en",
-    "region": "",
+    "region": "US",
     "topic_tags": [
       "gut_health",
-      "nutrition",
-      "inflammation",
-      "mental_health",
       "medicine"
     ],
-    "trust_score": 0.74,
+    "trust_score": 0.57,
     "content_chunks": [
-      "The gut microbiome plays an important role in human health and influences the development of chronic diseases ranging from metabolic disease to gastrointestinal disorders and colorectal cancer. Of increasing prevalence in Western societies, these conditions carry a high burden of care. Dietary patterns and environmental factors have a profound effect on shaping gut microbiota in real time. Diverse populations of intestinal bacteria mediate their beneficial effects through the fermentation of dietary fiber to produce short-chain fatty acids, endogenous signals with important roles in lipid homeostasis and reducing inflammation. Recent progress shows that an individual's starting microbial profile is a key determinant in predicting their response to intervention with live probiotics. The gut microbiota is complex and challenging to characterize. Enterotypes have been proposed using metrics such as alpha species diversity, the ratio of Firmicutes to Bacteroidetes phyla, and the relative abundance of beneficial genera (e.g.,Bifidobacterium,Akkermansia) versus facultative anaerobes (E. coli), pro-inflammatoryRuminococcus, or nonbacterial microbes. Microbiota composition and relative populations of bacterial species are linked to physiologic health along different axes. We review the role of diet quality, carbohydrate intake, fermentable FODMAPs, and prebiotic fiber in maintaining healthy gut flora. The implications are discussed for various conditions including obesity, diabetes, irritable bowel syndrome, inflammatory bowel disease, depression, and cardiovascular disease."
-    ]
+      "To characterize somatic alterations in colorectal carcinoma, we conducted a genome-scale analysis of 276 samples, analysing exome sequence, DNA copy number, promoter methylation and messenger RNA and microRNA expression. A subset of these samples (97) underwent low-depth-of-coverage whole-genome sequencing. In total, 16% of colorectal carcinomas were found to be hypermutated: three-quarters of these had the expected high microsatellite instability, usually with hypermethylation and MLH1 silencing, and one-quarter had somatic mismatch-repair gene and polymerase ε (POLE) mutations. Excluding the hypermutated cancers, colon and rectum cancers were found to have considerably similar patterns of genomic alteration. Twenty-four genes were significantly mutated, and in addition to the expected APC, TP53, SMAD4, PIK3CA and KRAS mutations, we found frequent mutations in ARID1A, SOX9 and FAM123B. Recurrent copy-number alterations include potentially drug-targetable amplifications of ERBB2 and newly discovered amplification of IGF2. Recurrent chromosomal translocations include the fusion of NAV2 and WNT pathway member TCF7L1. Integrative analyses suggest new markers for aggressive colorectal carcinoma and an important role for MYC-directed transcriptional activation and repression."
+    ],
+    "raw_text": "To characterize somatic alterations in colorectal carcinoma, we conducted a genome-scale analysis of 276 samples, analysing exome sequence, DNA copy number, promoter methylation and messenger RNA and microRNA expression. A subset of these samples (97) underwent low-depth-of-coverage whole-genome sequencing. In total, 16% of colorectal carcinomas were found to be hypermutated: three-quarters of these had the expected high microsatellite instability, usually with hypermethylation and MLH1 silencing, and one-quarter had somatic mismatch-repair gene and polymerase ε (POLE) mutations. Excluding the hypermutated cancers, colon and rectum cancers were found to have considerably similar patterns of genomic alteration. Twenty-four genes were significantly mutated, and in addition to the expected APC, TP53, SMAD4, PIK3CA and KRAS mutations, we found frequent mutations in ARID1A, SOX9 and FAM123B. Recurrent copy-number alterations include potentially drug-targetable amplifications of ERBB2 and newly discovered amplification of IGF2. Recurrent chromosomal translocations include the fusion of NAV2 and WNT pathway member TCF7L1. Integrative analyses suggest new markers for aggressive colorectal carcinoma and an important role for MYC-directed transcriptional activation and repression.",
+    "journal": "Nature",
+    "citations_count": 44,
+    "trust_breakdown": {
+      "author_credibility": {
+        "score": 0.6,
+        "reason": "Named individual without explicit credentials."
+      },
+      "citation_count": {
+        "score": 1.0,
+        "reason": "Found 44 visible citations."
+      },
+      "domain_authority": {
+        "score": 1.0,
+        "reason": "Recognized medical repository (PubMed)."
+      },
+      "recency": {
+        "score": 0.25,
+        "reason": "Older than 5 years (potential decay)."
+      },
+      "disclaimer": {
+        "score": 0.2,
+        "reason": "No disclaimer found."
+      },
+      "penalties": [
+        "outdated_content",
+        "promotional_language"
+      ]
+    },
+    "risk_flags": [
+      "outdated_content",
+      "promotional_language"
+    ],
+    "scoring_reason": "high-authority domain. citations present. content is outdated. abuse signals detected: promotional_language.",
+    "scraped_at": "2026-04-26T08:16:49.422112"
   }
 ]
