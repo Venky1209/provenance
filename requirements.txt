@@ -7,3 +7,4 @@ langdetect
 python-dotenv
 fastapi
 uvicorn
+crawl4ai

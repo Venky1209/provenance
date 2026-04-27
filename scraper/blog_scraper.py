@@ -29,8 +29,13 @@ class BlogScraper(BaseScraper):
             return self._scrape_with_requests(url)
         except InsufficientContentError:
             # Page requires JS rendering (SPA/React/Qualtrics/etc.)
-            # Crawl4AI is not installed on Railway — return a graceful partial result
-            return self._js_fallback_result(url)
+            try:
+                import asyncio
+                # Set up a new event loop if needed (for thread safety in FastAPI)
+                return asyncio.run(self._scrape_with_crawl4ai(url))
+            except Exception as e:
+                # If crawl4ai fails or isn't installed properly, return a graceful partial result
+                return self._js_fallback_result(url, error=str(e))
 
     def _scrape_with_requests(self, url: str) -> dict[str, Any]:
         html = self.fetch_html(url)
@@ -166,26 +171,48 @@ class BlogScraper(BaseScraper):
         count += len(soup.find_all("a", href=re.compile(r"pubmed", re.I)))
         return count
 
-    def _js_fallback_result(self, url: str) -> dict[str, Any]:
+    async def _scrape_with_crawl4ai(self, url: str) -> dict[str, Any]:
         """
-        Graceful fallback for JS-only pages (SPAs, survey platforms, etc.).
-        Returns a partial result with a risk flag instead of crashing.
+        Actually use Crawl4AI to render the JS and extract content.
+        """
+        from crawl4ai import AsyncWebCrawler
+        async with AsyncWebCrawler(verbose=False) as crawler:
+            result = await crawler.arun(url=url, bypass_cache=True)
+            
+            # If crawl4ai also fails to find content
+            if not result.markdown or len(result.markdown.strip()) < 50:
+                raise InsufficientContentError(f"Crawl4AI found no content for {url}")
+
+            metadata = result.metadata or {}
+            
+            return {
+                "title": metadata.get("title") or metadata.get("og:title") or f"Scraped Page: {url}",
+                "author": metadata.get("author") or "",
+                "published_date": metadata.get("published_date") or metadata.get("og:published_time") or "",
+                "description": metadata.get("description") or metadata.get("og:description") or "",
+                "raw_text": result.markdown,
+                "citations_count": 0,  # Markdown citations are harder to count via regex
+                "region": self._guess_region(url),
+                "_is_js_rendered": True
+            }
+
+    def _js_fallback_result(self, url: str, error: str | None = None) -> dict[str, Any]:
+        """
+        Graceful fallback for JS-only pages if rendering fails.
         """
         from urllib.parse import urlparse
         host = urlparse(url).hostname or url
+        error_msg = f" (Error: {error})" if error else ""
         return {
             "title": f"JS-only page: {host}",
             "author": "",
             "published_date": "",
             "description": (
-                f"This URL ({host}) requires a JavaScript runtime to render content. "
-                "Static HTML scraping returned no readable text. "
-                "In production this would use Playwright or Crawl4AI."
+                f"This URL ({host}) requires a JavaScript runtime. "
+                f"Headless rendering failed or was skipped{error_msg}. "
+                "No readable text was extracted."
             ),
-            "raw_text": (
-                f"Page at {url} requires JavaScript rendering. "
-                "No static content could be extracted."
-            ),
+            "raw_text": f"Page at {url} requires JavaScript rendering. Rendering failed{error_msg}.",
             "citations_count": 0,
             "region": self._guess_region(url),
             "_risk_flags": ["js_rendering_required", "missing_author", "missing_date"],
