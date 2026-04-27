@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="https://capsule-render.vercel.app/api?type=waving&amp;color=0:0a0a0f,30:0d1117,60:161b22,100:1a1f2e&amp;height=200&amp;section=header&amp;text=PROVENANCE&amp;fontSize=72&amp;fontColor=e6edf3&amp;fontAlignY=42&amp;desc=Multi-Source%20Content%20Ingestion%20%26%20Trust%20Scoring%20Pipeline&amp;descAlignY=64&amp;descSize=16&amp;descColor=8b949e&amp;animation=fadeIn" width="100%"/>
+<img src="https://capsule-render.vercel.app/api?type=waving&amp;color=0:0a0a0f,30:0d1117,60:161b22,100:1a1f2e&amp;height=200&amp;section=header&amp;text=PROVENANCE&amp;fontSize=72&amp;fontColor=e6edf3&amp;fontAlignY=42&amp;desc=Multi-Source%20Content%20Ingestion%20and%20Trust%20Scoring%20Pipeline&amp;descAlignY=64&amp;descSize=16&amp;descColor=8b949e&amp;animation=fadeIn" width="100%"/>
 
 <br/>
 
