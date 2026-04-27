@@ -1,22 +1,22 @@
 <div align="center">
 
-<img src="https://capsule-render.vercel.app/api?type=waving&color=0:0a0a0f,30:0d1117,60:161b22,100:1a1f2e&height=200&section=header&text=PROVENANCE&fontSize=72&fontColor=e6edf3&fontAlignY=42&desc=Multi-Source%20Content%20Ingestion%20%26%20Trust%20Scoring%20Pipeline&descAlignY=64&descSize=16&descColor=8b949e&animation=fadeIn" width="100%"/>
+<img src="https://capsule-render.vercel.app/api?type=waving&amp;color=0:0a0a0f,30:0d1117,60:161b22,100:1a1f2e&amp;height=200&amp;section=header&amp;text=PROVENANCE&amp;fontSize=72&amp;fontColor=e6edf3&amp;fontAlignY=42&amp;desc=Multi-Source%20Content%20Ingestion%20%26%20Trust%20Scoring%20Pipeline&amp;descAlignY=64&amp;descSize=16&amp;descColor=8b949e&amp;animation=fadeIn" width="100%"/>
 
 <br/>
 
-<img src="https://readme-typing-svg.demolab.com?font=JetBrains+Mono&weight=500&size=15&pause=1000&color=58A6FF&center=true&vCenter=true&width=600&lines=Scrape+%E2%86%92+Clean+%E2%86%92+Enrich+%E2%86%92+Score+%E2%86%92+Serve;Explainable+trust+scoring+grounded+in+E-E-A-T;Built+as+a+real-world+RAG+data+ingestion+layer;FastAPI+%7C+Railway+%7C+Python+3.13" alt="Typing SVG" />
+<img src="https://readme-typing-svg.demolab.com?font=JetBrains+Mono&amp;weight=500&amp;size=15&amp;pause=1000&amp;color=58A6FF&amp;center=true&amp;vCenter=true&amp;width=600&amp;lines=Scrape+%E2%86%92+Clean+%E2%86%92+Enrich+%E2%86%92+Score+%E2%86%92+Serve;Explainable+trust+scoring+grounded+in+E-E-A-T;Built+as+a+real-world+RAG+data+ingestion+layer;FastAPI+%7C+Railway+%7C+Python+3.13" alt="Typing SVG" />
 
 <br/><br/>
 
-<a href="https://web-production-a2b4a.up.railway.app/"><img src="https://img.shields.io/badge/LIVE_DEMO-00D4AA?style=for-the-badge&logo=railway&logoColor=white&labelColor=0d1117"/></a>
+<a href="https://web-production-a2b4a.up.railway.app/"><img src="https://img.shields.io/badge/LIVE_DEMO-00D4AA?style=for-the-badge&amp;logo=railway&amp;logoColor=white&amp;labelColor=0d1117"/></a>
 &nbsp;
-<a href="https://web-production-a2b4a.up.railway.app/docs"><img src="https://img.shields.io/badge/API_DOCS-85EA2D?style=for-the-badge&logo=swagger&logoColor=white&labelColor=0d1117"/></a>
+<a href="https://web-production-a2b4a.up.railway.app/docs"><img src="https://img.shields.io/badge/API_DOCS-85EA2D?style=for-the-badge&amp;logo=swagger&amp;logoColor=white&amp;labelColor=0d1117"/></a>
 &nbsp;
-<a href="https://github.com/Venky1209/provenance"><img src="https://img.shields.io/badge/SOURCE_CODE-181717?style=for-the-badge&logo=github&logoColor=white&labelColor=0d1117"/></a>
+<a href="https://github.com/Venky1209/provenance"><img src="https://img.shields.io/badge/SOURCE_CODE-181717?style=for-the-badge&amp;logo=github&amp;logoColor=white&amp;labelColor=0d1117"/></a>
 
 <br/><br/>
 
-<img src="https://skillicons.dev/icons?i=python,fastapi,github,git&theme=dark" />
+<img src="https://skillicons.dev/icons?i=python,fastapi,github,git&amp;theme=dark" />
 
 <br/><br/>
 
@@ -308,11 +308,11 @@ Connect repo -> Railway auto-detects Python + requirements.txt -> done.
 
 <div align="center">
 
-<img src="https://github-readme-stats.vercel.app/api/pin/?username=Venky1209&repo=provenance&theme=github_dark&hide_border=true&bg_color=0d1117&title_color=58a6ff&text_color=8b949e&icon_color=58a6ff" />
+<img src="https://github-readme-stats.vercel.app/api/pin/?username=Venky1209&amp;repo=provenance&amp;theme=github_dark&amp;hide_border=true&amp;bg_color=0d1117&amp;title_color=58a6ff&amp;text_color=8b949e&amp;icon_color=58a6ff" />
 
 <br/><br/>
 
-<img src="https://capsule-render.vercel.app/api?type=waving&color=0:1a1f2e,50:161b22,100:0d1117&height=100&section=footer&animation=fadeIn" width="100%"/>
+<img src="https://capsule-render.vercel.app/api?type=waving&amp;color=0:1a1f2e,50:161b22,100:0d1117&amp;height=100&amp;section=footer&amp;animation=fadeIn" width="100%"/>
 
 <sub>Built by <a href="https://github.com/Venky1209">Venky1209</a> &nbsp;|&nbsp; <a href="https://github.com/Venky1209/provenance">Source on GitHub</a> &nbsp;|&nbsp; FastAPI · Railway · Python 3.13</sub>
 
