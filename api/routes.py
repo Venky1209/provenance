@@ -131,6 +131,16 @@ def scrape_url(request: ScrapeRequest):
                 flags.append(RiskFlag.TRANSCRIPT_UNAVAILABLE)
                 breakdown.penalties.append(RiskFlag.TRANSCRIPT_UNAVAILABLE)
 
+        # Merge any scraper-level risk flags (e.g. js_rendering_required)
+        for raw_flag in raw.get("_risk_flags", []):
+            try:
+                rf = RiskFlag(raw_flag)
+                if rf not in flags:
+                    flags.append(rf)
+            except ValueError:
+                pass  # unknown flag string, skip silently
+
+
         return ScrapedDocument(
             source_id=generate_source_id(url),
             source_url=url,

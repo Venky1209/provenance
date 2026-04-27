@@ -28,11 +28,9 @@ class BlogScraper(BaseScraper):
             # Primary: fast, lightweight, no browser needed (good for Railway)
             return self._scrape_with_requests(url)
         except InsufficientContentError:
-            # Fallback: JS-rendered sites (Next.js, React SPAs)
-            # Uses Crawl4AI + Playwright. This is mocked here as an example
-            # of how we would handle it in production.
-            import asyncio
-            return asyncio.run(self._scrape_with_crawl4ai(url))
+            # Page requires JS rendering (SPA/React/Qualtrics/etc.)
+            # Crawl4AI is not installed on Railway — return a graceful partial result
+            return self._js_fallback_result(url)
 
     def _scrape_with_requests(self, url: str) -> dict[str, Any]:
         html = self.fetch_html(url)
@@ -168,22 +166,30 @@ class BlogScraper(BaseScraper):
         count += len(soup.find_all("a", href=re.compile(r"pubmed", re.I)))
         return count
 
-    async def _scrape_with_crawl4ai(self, url: str) -> dict[str, Any]:
+    def _js_fallback_result(self, url: str) -> dict[str, Any]:
         """
-        Fallback using Crawl4AI and Playwright.
-        In a full production environment, this parses Markdown directly
-        from JS-heavy sites like Next.js SPAs.
+        Graceful fallback for JS-only pages (SPAs, survey platforms, etc.).
+        Returns a partial result with a risk flag instead of crashing.
         """
-        # Pseudo-implementation for demonstration:
-        # from crawl4ai import AsyncWebCrawler
-        # async with AsyncWebCrawler(verbose=True) as crawler:
-        #     result = await crawler.arun(url=url, bypass_cache=True)
-        #     return { ... extract from result.markdown ... }
-        
-        raise ScraperError(
-            f"JS-rendered fallback required but Crawl4AI is not installed for {url}",
-            source_type=self.source_type.value
-        )
+        from urllib.parse import urlparse
+        host = urlparse(url).hostname or url
+        return {
+            "title": f"JS-only page: {host}",
+            "author": "",
+            "published_date": "",
+            "description": (
+                f"This URL ({host}) requires a JavaScript runtime to render content. "
+                "Static HTML scraping returned no readable text. "
+                "In production this would use Playwright or Crawl4AI."
+            ),
+            "raw_text": (
+                f"Page at {url} requires JavaScript rendering. "
+                "No static content could be extracted."
+            ),
+            "citations_count": 0,
+            "region": self._guess_region(url),
+            "_risk_flags": ["js_rendering_required", "missing_author", "missing_date"],
+        }
 
     def _guess_region(self, url: str) -> str:
         """Best-effort region guess from TLD."""

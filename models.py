@@ -26,6 +26,7 @@ class RiskFlag(str, Enum):
     NON_ENGLISH = "non_english"
     TRANSCRIPT_UNAVAILABLE = "transcript_unavailable"
     SUSPICIOUS_AUTHOR = "suspicious_author"
+    JS_RENDERING_REQUIRED = "js_rendering_required"
 
 
 class BreakdownDetail(BaseModel):
